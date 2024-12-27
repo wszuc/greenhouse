@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from pydantic import BaseModel
 from typing import Annotated
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from scripts.utils import led_on, led_off
 
 app = FastAPI()
 
@@ -69,3 +70,13 @@ async def update_conditions(conditions_set_id: int, updated_conditions: Conditio
 async def get_conditions(session: SessionDep) -> list[ConditionsSet]:
     conditions_sets = session.exec(select(ConditionsSet)).all()
     return conditions_sets
+
+@app.post("/led_on/")
+async def led_on():
+    led_on()
+    return "LED ON"
+
+@app.post("/led_off/")
+async def led_off():
+    led_off()
+    return "LED OFF"
