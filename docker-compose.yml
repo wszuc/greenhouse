@@ -1,0 +1,12 @@
+version: "3.12"
+
+services:
+  app:
+      image: v1.0
+      ports:
+        - "127.0.0.1:8000:8000"
+      volumes:
+      - database_data:/app/database.db 
+
+volumes:
+  database_data:
