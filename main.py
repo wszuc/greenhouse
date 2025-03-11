@@ -74,10 +74,12 @@ async def get_conditions(session: SessionDep) -> list[ConditionsSet]:
 # Tworzymy globalny obiekt LED                                              
 led = LED(17)
 
+@app.post("/led_on/")
 def led_on():                                                               
     led.on()  # Zapal diodę LED                                              
     return {"status": "LED ON"} 
 
+@app.post("/led_off/")
 def led_off():                                                                  
     led.off()  # Zgaś diodę LED                                             
     return {"status": "LED OFF"} 
