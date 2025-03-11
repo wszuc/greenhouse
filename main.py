@@ -2,7 +2,9 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from pydantic import BaseModel
 from typing import Annotated
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-from gpiozero import LED 
+from gpiozero import LED
+import w1thermsensor
+
 
 app = FastAPI()
 
@@ -83,3 +85,10 @@ def led_on():
 def led_off():                                                                  
     led.off()  # Zgaś diodę LED                                             
     return {"status": "LED OFF"} 
+
+@app.get("/get_temp/")
+def get_temp():
+    sensor = w1thermsensor.W1ThermSensor()
+    temp = sensor.get_temperature()
+    return temp
+    
