@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from pydantic import BaseModel
 from typing import Annotated
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-from scripts.utils import led_on, led_off
+from gpiozero import LED 
 
 app = FastAPI()
 
@@ -28,7 +28,7 @@ class ConditionsSetUpdate(ConditionsSetBase):
     secret_key: str | None = None  # Opcjonalne dla aktualizacji
 
 sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///database/{sqlite_file_name}"
+sqlite_url = f"sqlite:///{sqlite_file_name}" 
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
@@ -71,12 +71,13 @@ async def get_conditions(session: SessionDep) -> list[ConditionsSet]:
     conditions_sets = session.exec(select(ConditionsSet)).all()
     return conditions_sets
 
-@app.post("/led_on/")
-async def led_on():
-    led_on()
-    return "LED ON"
+# Tworzymy globalny obiekt LED                                              
+led = LED(17)
 
-@app.post("/led_off/")
-async def led_off():
-    led_off()
-    return "LED OFF"
+def led_on():                                                               
+    led.on()  # Zapal diodę LED                                              
+    return {"status": "LED ON"} 
+
+def led_off():                                                                  
+    led.off()  # Zgaś diodę LED                                             
+    return {"status": "LED OFF"} 
