@@ -90,5 +90,5 @@ def led_off():
 def get_temp():
     sensor = w1thermsensor.W1ThermSensor()
     temp = sensor.get_temperature()
-    return temp
+    return {"temp": temp}
     
