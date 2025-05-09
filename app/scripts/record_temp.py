@@ -2,8 +2,8 @@ import time
 from sqlmodel import Session
 from gpiozero import LED
 from w1thermsensor import W1ThermSensor
-from app.db.engine import engine
-from app.models.models import ConditionsSet
+from app.db.session import engine
+from app.db.models import ConditionsSet
 
 def read_temperature() -> float:
     sensor = W1ThermSensor()
