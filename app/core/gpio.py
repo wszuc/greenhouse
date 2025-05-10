@@ -28,7 +28,7 @@ def led_off() -> Optional[int]:
 def get_temperature() -> Optional[Dict[str, float]]:
     try:
         temp = sensor.get_temperature()
-        return {"temperature": temp}
+        return temp
     except RuntimeError as error:
         print("Blad opercaji get_temperature() - odczytu z czujnika temperatury: ", error)
 
