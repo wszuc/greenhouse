@@ -3,6 +3,9 @@ from sqlmodel import SQLModel, Field
 from typing import Optional
 from pydantic import field_validator
 
+def get_local_datetime():
+    return datetime.now().astimezone()
+
 # absctract base-class
 class ConditionsSetBase(SQLModel):
     temp_1: float = None
@@ -10,7 +13,7 @@ class ConditionsSetBase(SQLModel):
     temp_3: Optional[float] = None
     humidity: float = Field(default=0, ge=0)  
     lighting: float = Field(default=0, ge=0)
-    date: datetime = Field(default_factory=datetime.now().astimezone())
+    date: datetime = Field(default_factory=get_local_datetime)
     comment: Optional[str] = None
 
 # real table in db
