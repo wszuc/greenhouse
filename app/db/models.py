@@ -10,7 +10,7 @@ class ConditionsSetBase(SQLModel):
     temp_3: Optional[float] = None
     humidity: float = Field(default=0, ge=0)  
     lighting: float = Field(default=0, ge=0)
-    date: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
+    date: datetime = Field(default_factory=datetime.now(datetime.astimezone()))
     comment: Optional[str] = None
 
 # real table in db
