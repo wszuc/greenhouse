@@ -11,7 +11,8 @@ class ConditionsSetBase(SQLModel):
     temp_1: float = None
     temp_2: Optional[float] = None
     temp_3: Optional[float] = None
-    humidity: float = Field(default=0, ge=0)  
+    humidity: float = Field(default=0, ge=0)
+    soil_humidity: float = Field(default=0, ge=0)  
     lighting: float = Field(default=0, ge=0)
     date: datetime = Field(default_factory=get_local_datetime)
     comment: Optional[str] = None
