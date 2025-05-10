@@ -4,12 +4,14 @@ from gpiozero import LED
 from w1thermsensor import W1ThermSensor
 from app.db.session import engine
 from app.db.models import ConditionsSet
+from app.db.init_db import init_db
 
 def read_temperature() -> float:
     sensor = W1ThermSensor()
     return sensor.get_temperature()
 
 def main():
+    init_db()
     while True:
         try:
             temp = read_temperature()
@@ -23,7 +25,7 @@ def main():
                     humidity=0.0,  
                     lighting=0.0,
                     comment="record_temp script",
-                    secret_key="raspberry-key"
+                    uid="raspberry"
                 )
                 session.add(new_entry)
                 session.commit()
