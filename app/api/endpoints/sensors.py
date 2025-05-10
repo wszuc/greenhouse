@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-import w1thermsensor
 
 router = APIRouter()
 
