@@ -1,7 +1,7 @@
 from gpiozero import LED
 import adafruit_dht
 import board
-from typing import Optional, int, Dict
+from typing import Optional,  Dict
 import w1thermsensor
 
 led = LED(17)
