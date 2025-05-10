@@ -14,7 +14,7 @@ def main():
             print(f"[LOG] Aktualna temperatura z czujnika temperatury: {temp:.2f} °C")
 
             temp_humid_dict = get_humidity_and_temperature()
-            print(f"[LOG] Aktualna temperatura i wilgotnosc: {temp_humid_dict.temperature} °C i {temp_humid_dict.humidity} %")
+            print(f"[LOG] Aktualna temperatura i wilgotnosc: {temp_humid_dict['temperature']} °C i {temp_humid_dict['humidity']}")
 
 
             # with Session(engine) as session:
