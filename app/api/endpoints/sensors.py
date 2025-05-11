@@ -6,7 +6,7 @@ from app.db.session import engine
 
 router = APIRouter()
 
-@router.get("/all/", response_model=ConditonsSetPublic)
+@router.get("/all/", response_model=list[ConditonsSetPublic])
 def get_values(limit: int = 1):
     with Session(engine) as session:
         values = session.exec(select(ConditionsSet).limit(limit)).all()
