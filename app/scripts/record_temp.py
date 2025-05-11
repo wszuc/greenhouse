@@ -5,8 +5,6 @@ from app.db.models import ConditionsSet
 from app.db.init_db import init_db
 from app.core.gpio import get_humidity_and_temperature, get_temperature
 
-
-
 init_db()
 while True:
     try:
