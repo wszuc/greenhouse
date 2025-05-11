@@ -6,36 +6,36 @@ from app.db.init_db import init_db
 from app.core.gpio import get_humidity_and_temperature, get_temperature
 
 
-def main():
-    init_db()
-    while True:
-        try:
-            temp = get_temperature()
-            print(f"[LOG] Aktualna temperatura z czujnika temperatury: {temp:.2f} °C")
 
-            temp_humid_dict = get_humidity_and_temperature()
-            print(f"[LOG] Aktualna temperatura i wilgotnosc: {temp_humid_dict['temperature']}°C i {temp_humid_dict['humidity']}%")
+init_db()
+while True:
+    try:
+        temp = get_temperature()
+        print(f"[LOG] Aktualna temperatura z czujnika temperatury: {temp:.2f} °C")
 
-
-            with Session(engine) as session:
-                new_entry = ConditionsSet(
-                    temp_1=temp,
-                    temp_2=temp_humid_dict['temperature'],  
-                    temp_3=0.0,
-                    humidity=temp_humid_dict['humidity'],  
-                    lighting=0.0,
-                    soil_humidity=0.0,
-                    comment="record_temp script",
-                    uid="raspberry"
-                )
-                session.add(new_entry)
-                session.commit()
-                print("[LOG] Zapisano dane do bazy.\n")
-
-        except Exception as e:
-            print(f"[ERROR] Błąd podczas odczytu/zapisu: {e}")
-
-        time.sleep(5)  
+        temp_humid_dict = get_humidity_and_temperature()
+        print(f"[LOG] Aktualna temperatura i wilgotnosc: {temp_humid_dict['temperature']}°C i {temp_humid_dict['humidity']}%")
 
 
-main()
+        with Session(engine) as session:
+            new_entry = ConditionsSet(
+                temp_1=temp,
+                temp_2=temp_humid_dict['temperature'],  
+                temp_3=0.0,
+                humidity=temp_humid_dict['humidity'],  
+                lighting=0.0,
+                soil_humidity=0.0,
+                comment="record_temp script",
+                uid="raspberry"
+            )
+            session.add(new_entry)
+            session.commit()
+            print("[LOG] Zapisano dane do bazy.\n")
+
+    except Exception as e:
+        print(f"[ERROR] Błąd podczas odczytu/zapisu: {e}")
+
+    time.sleep(5)  
+
+
+
