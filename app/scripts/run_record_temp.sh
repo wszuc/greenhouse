@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /home/pi/twoj_projekt
-source venv/bin/activate
+cd /home/wiktor/Desktop/greenhouse
+source bin/activate
 PYTHONPATH=. python app/scripts/record_temp.py
