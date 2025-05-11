@@ -9,7 +9,7 @@ router = APIRouter()
 @router.get("/all/", response_model=list[ConditonsSetPublic])
 def get_values(limit: int = 1):
     with Session(engine) as session:
-        values = session.exec(select(ConditionsSet).limit(limit)).all()
+        values = session.exec(select(ConditionsSet).order_by(ConditionsSet.id.desc()).limit(limit)).all()
         return values
     
     
