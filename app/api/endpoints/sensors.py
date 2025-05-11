@@ -1,8 +1,15 @@
-from fastapi import APIRouter
+# Endpoints returning actual conditons in the greenhouse. Return n last records from conditionsset table.
+from fastapi import FastAPI, HTTPException, Query, APIRouter
+from sqlmodel import Field, Session, SQLModel, select
+from app.db.models import ConditionsSet, ConditonsSetPublic
+from app.db.session import engine
 
 router = APIRouter()
 
-@router.get("/temperature")
-def get_temperature():
-    sensor = w1thermsensor.W1ThermSensor()
-    return {"temp": sensor.get_temperature()}
+@router.get("/all/", response_model=ConditonsSetPublic)
+def get_values(limit: int = 1):
+    with Session(engine) as session:
+        values = session.exec(select(ConditionsSet).limit(limit)).all()
+        return values
+    
+    

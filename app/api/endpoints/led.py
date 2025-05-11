@@ -1,3 +1,5 @@
+# Set of endpoints mainly for testing purposes - turning LED on and off
+
 from fastapi import APIRouter
 from app.core.gpio import led_on, led_off
 

@@ -1,3 +1,5 @@
+# Model to reperezntacja tabeli, schema to klasa służąca jako wejście/wyjście w API
+
 from datetime import datetime
 from sqlmodel import SQLModel, Field
 from typing import Optional
@@ -8,16 +10,24 @@ def get_local_datetime():
 
 # absctract base-class
 class ConditionsSetBase(SQLModel):
-    temp_1: float = None
+    temp_1: Optional[float] = None
     temp_2: Optional[float] = None
     temp_3: Optional[float] = None
-    humidity: float = Field(default=0, ge=0)
-    soil_humidity: float = Field(default=0, ge=0)  
-    lighting: float = Field(default=0, ge=0)
+    humidity: Optional[float] = None
+    soil_humidity: Optional[float] = None
+    lighting: Optional[float] = None
     date: datetime = Field(default_factory=get_local_datetime)
-    comment: Optional[str] = None
 
 # real table in db
 class ConditionsSet(ConditionsSetBase, table=True):
-    id: int = Field(primary_key=True)
+    id:Optional[int] = Field(default=None, primary_key=True)
+    uid: str
+
+# create operation in db schema
+class ConditionsSetCreate(ConditionsSetBase):
+    uid: str
+
+# get operation in db
+class ConditonsSetPublic(ConditionsSetBase):
+    id: int
     uid: str

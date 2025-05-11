@@ -25,7 +25,7 @@ def led_off() -> Optional[int]:
         print("Blad operacji led.off(): ", error)
         return None
 
-def get_temperature() -> Optional[Dict[str, float]]:
+def get_temperature() -> Optional[int]:
     try:
         temp = sensor.get_temperature()
         return temp
