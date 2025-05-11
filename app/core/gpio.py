@@ -5,7 +5,7 @@ from typing import Optional,  Dict
 import w1thermsensor
 
 led = LED(17)
-dht = adafruit_dht.DHT11(board.D27, use_pulseio=False)
+dht = adafruit_dht.DHT11(board.D27)
 sensor = w1thermsensor.W1ThermSensor()
 
 
