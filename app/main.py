@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.db.init_db import init_db
-from app.api.endpoints import conditions, led, sensors
+from app.api.endpoints import led, sensors
 
 app = FastAPI()
 
