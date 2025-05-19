@@ -1,11 +1,8 @@
 from gpiozero import LED
-import adafruit_dht
-import board
 from typing import Optional,  Dict
 import w1thermsensor
 
 led = LED(17)
-dht = adafruit_dht.DHT11(board.D22)
 sensor = w1thermsensor.W1ThermSensor()
 
 
@@ -34,8 +31,9 @@ def get_temperature() -> Optional[int]:
 
 def get_humidity_and_temperature() -> Optional[Dict[str, float]]: 
     try:
-        temperature: Optional[float] = dht.temperature
-        humidity: Optional[float] = dht.humidity
+        temperature: Optional[float] = 0.0
+        humidity: Optional[float] = 0.0
+        
         if temperature is None or humidity is None:
             raise RuntimeError("Brak odczytu z czujnika")
         return {
