@@ -5,9 +5,8 @@ from app.db.models import ConditionsSet
 from app.db.init_db import init_db
 from app.core.gpio import get_humidity_and_temperature, get_temperature
 
-init_db()
-
 try:
+    init_db()
     temp = get_temperature()
     print(f"[LOG] Aktualna temperatura z czujnika temperatury: {temp:.2f} °C")
 
