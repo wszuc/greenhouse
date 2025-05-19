@@ -29,9 +29,11 @@ try:
         session.add(new_entry)
         session.commit()
         print("[LOG] Zapisano dane do bazy.\n")
+        exit(0)
 
 except Exception as e:
     print(f"[ERROR] Błąd podczas odczytu/zapisu: {e}")
+    exit(-1)
 
 
 
