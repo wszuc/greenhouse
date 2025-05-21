@@ -1,8 +1,9 @@
-from gpiozero import LED
+from gpiozero import LED 
 from typing import Optional,  Dict
 import w1thermsensor
 
 led = LED(17)
+relay_1 = LED(27)
 sensor = w1thermsensor.W1ThermSensor()
 
 
@@ -11,7 +12,7 @@ def led_on() -> Optional[int]:
         led.on()
         return 0
     except RuntimeError as error:
-        print("Blad operacji led.on(): ", error)
+        print("Error during operation led.on(): ", error)
         return None
 
 def led_off() -> Optional[int]:
@@ -19,15 +20,31 @@ def led_off() -> Optional[int]:
         led.off()
         return 0
     except RuntimeError as error:
-        print("Blad operacji led.off(): ", error)
+        print("Error during operation led.off(): ", error)
         return None
-
+    
+def heater_on() -> Optional[int]:
+    try:
+        relay_1.on()
+        return 0
+    except RuntimeError as error:
+        print("Relay 1 coudln't be turned on: ", error)
+        return None
+    
+def heater_off() -> Optional[int]:
+    try:
+        relay_1.off()
+        return 0
+    except RuntimeError as error:
+        print("Relay 1 coudln't be turned off: ", error)
+        return None
+    
 def get_temperature() -> Optional[int]:
     try:
         temp = sensor.get_temperature()
         return temp
     except RuntimeError as error:
-        print("Blad opercaji get_temperature() - odczytu z czujnika temperatury: ", error)
+        print("Error while reading temperature from temp. sensor: ", error)
 
 def get_humidity_and_temperature() -> Optional[Dict[str, float]]: 
     try:
