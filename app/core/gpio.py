@@ -2,6 +2,10 @@ from gpiozero import LED
 from typing import Optional,  Dict
 import w1thermsensor
 
+from gpiozero import Device
+from gpiozero.pins.pigpio import PiGPIOFactory
+
+Device.pin_factory = PiGPIOFactory()
 led = LED(17)
 relay_1 = LED(27)
 sensor = w1thermsensor.W1ThermSensor()
