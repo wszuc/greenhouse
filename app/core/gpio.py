@@ -54,8 +54,8 @@ def get_humidity_and_temperature() -> Optional[Dict[str, float]]:
         temperature = aht20.get_temperature_C()
         humidity = aht20.get_humidity_RH()
         return {
-            temperature: temperature,
-            humidity: humidity
+            "temperature": temperature,
+            "humidity": humidity
         }
     except RuntimeError as e:
         print(f"Blad odczytu z czujnika DHT11: {e}")
