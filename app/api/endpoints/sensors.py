@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlmodel import Field, Session, SQLModel, select
 from app.db.models import ConditionsSet, ConditonsSetPublic
 from app.db.session import engine
-from app.core import GPIO
+from app.core.gpio import GPIO
 
 router = APIRouter()
 gpio = GPIO()
