@@ -1,11 +1,14 @@
 from gpiozero import LED 
 from typing import Optional,  Dict
 import w1thermsensor
+from app.external_libs import DFRobot_AHT20
 
 led = LED(17)
 relay_1 = LED(27)
 sensor = w1thermsensor.W1ThermSensor()
-
+aht20 = DFRobot_AHT20()
+aht20.begin()
+aht20.reset()
 
 def led_on() -> Optional[int]:
     try:
@@ -48,14 +51,11 @@ def get_temperature() -> Optional[int]:
 
 def get_humidity_and_temperature() -> Optional[Dict[str, float]]: 
     try:
-        temperature: Optional[float] = 0.0
-        humidity: Optional[float] = 0.0
-        
-        if temperature is None or humidity is None:
-            raise RuntimeError("Brak odczytu z czujnika")
+        temperature = aht20.get_temperature_C()
+        humidity = aht20.get_humidity_RH()
         return {
-            "temperature": temperature,
-            "humidity": humidity
+            temperature: temperature,
+            humidity: humidity
         }
     except RuntimeError as e:
         print(f"Blad odczytu z czujnika DHT11: {e}")
