@@ -1,62 +1,65 @@
 from gpiozero import LED 
-from typing import Optional,  Dict
+from typing import Optional, Dict
 import w1thermsensor
 from app.external_libs import DFRobot_AHT20
 
-led = LED(17)
-relay_1 = LED(27)
-sensor = w1thermsensor.W1ThermSensor()
-aht20 = DFRobot_AHT20()
-aht20.begin()
-aht20.reset()
+class GPIO:
+    def __init__(self):
+        self.led = LED(17)
+        self.relay_1 = LED(27)
+        self.sensor = w1thermsensor.W1ThermSensor()
+        self.aht20 = DFRobot_AHT20()
+        self.aht20.begin()
+        self.aht20.reset()
 
-def led_on() -> Optional[int]:
-    try:
-        led.on()
-        return 0
-    except RuntimeError as error:
-        print("Error during operation led.on(): ", error)
-        return None
+    def led_on(self) -> Optional[int]:
+        try:
+            self.led.on()
+            return 0
+        except RuntimeError as error:
+            print("Error during operation led.on(): ", error)
+            return None
 
-def led_off() -> Optional[int]:
-    try:
-        led.off()
-        return 0
-    except RuntimeError as error:
-        print("Error during operation led.off(): ", error)
-        return None
-    
-def heater_on() -> Optional[int]:
-    try:
-        relay_1.on()
-        return 0
-    except RuntimeError as error:
-        print("Relay 1 coudln't be turned on: ", error)
-        return None
-    
-def heater_off() -> Optional[int]:
-    try:
-        relay_1.off()
-        return 0
-    except RuntimeError as error:
-        print("Relay 1 coudln't be turned off: ", error)
-        return None
-    
-def get_temperature() -> Optional[int]:
-    try:
-        temp = sensor.get_temperature()
-        return temp
-    except RuntimeError as error:
-        print("Error while reading temperature from temp. sensor: ", error)
+    def led_off(self) -> Optional[int]:
+        try:
+            self.led.off()
+            return 0
+        except RuntimeError as error:
+            print("Error during operation led.off(): ", error)
+            return None
+        
+    def heater_on(self) -> Optional[int]:
+        try:
+            self.relay_1.on()
+            return 0
+        except RuntimeError as error:
+            print("Relay 1 couldn't be turned on: ", error)
+            return None
+        
+    def heater_off(self) -> Optional[int]:
+        try:
+            self.relay_1.off()
+            return 0
+        except RuntimeError as error:
+            print("Relay 1 couldn't be turned off: ", error)
+            return None
+        
+    def get_temperature(self) -> Optional[float]:
+        try:
+            temp = self.sensor.get_temperature()
+            return temp
+        except RuntimeError as error:
+            print("Error while reading temperature from temp. sensor: ", error)
+            return None
 
-def get_humidity_and_temperature() -> Optional[Dict[str, float]]: 
-    try:
-        temperature = aht20.get_temperature_C()
-        humidity = aht20.get_humidity_RH()
-        return {
-            "temperature": temperature,
-            "humidity": humidity
-        }
-    except RuntimeError as e:
-        print(f"Blad odczytu z czujnika DHT11: {e}")
-        return None
+    def get_humidity_and_temperature(self) -> Optional[Dict[str, float]]: 
+        try:
+            temperature = self.aht20.get_temperature_C()
+            humidity = self.aht20.get_humidity_RH()
+            return {
+                "temperature": temperature,
+                "humidity": humidity
+            }
+        except RuntimeError as e:
+            print(f"Błąd odczytu z czujnika AHT20: {e}")
+            return None

@@ -4,9 +4,10 @@ from fastapi.responses import JSONResponse
 from sqlmodel import Field, Session, SQLModel, select
 from app.db.models import ConditionsSet, ConditonsSetPublic
 from app.db.session import engine
-from app.core import gpio
+from app.core import GPIO
 
 router = APIRouter()
+gpio = GPIO()
 
 @router.get("/read/")
 def read_live_conditions():
