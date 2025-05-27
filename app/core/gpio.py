@@ -1,16 +1,28 @@
 from gpiozero import LED 
 from typing import Optional, Dict
 import w1thermsensor
-from app.external_libs.DFRobot_AHT20 import *
+from app.external_libs import DFRobot_AHT20
+
 
 class GPIO:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(GPIO, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
+        if self._initialized:
+            return  # unikamy ponownej inicjalizacji
         self.led = LED(17)
         self.relay_1 = LED(27)
         self.sensor = w1thermsensor.W1ThermSensor()
         self.aht20 = DFRobot_AHT20()
         self.aht20.begin()
         self.aht20.reset()
+        self._initialized = True
 
     def led_on(self) -> Optional[int]:
         try:
