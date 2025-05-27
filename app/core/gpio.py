@@ -1,7 +1,8 @@
 from gpiozero import LED 
 from typing import Optional, Dict
 import w1thermsensor
-from external_libs.DFRobot_AHT20 import DFRobot_AHT20
+from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
+
 
 
 class GPIO:
