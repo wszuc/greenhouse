@@ -72,12 +72,13 @@ class GPIO:
 
     def get_humidity_and_temperature(self) -> Optional[Dict[str, float]]: 
         try:
-            temperature = self.aht20.get_temperature_C()
-            humidity = self.aht20.get_humidity_RH()
-            return {
-                "temperature": temperature,
-                "humidity": humidity
-            }
+            if self.aht20.start_measurement_ready(crc_en = True):
+                temperature = self.aht20.get_temperature_C()
+                humidity = self.aht20.get_humidity_RH()
+                return {
+                    "temperature": temperature,
+                    "humidity": humidity
+                }
         except RuntimeError as e:
             print(f"Błąd odczytu z czujnika AHT20: {e}")
             return None
