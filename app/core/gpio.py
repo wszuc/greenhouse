@@ -1,3 +1,4 @@
+from os import system
 from gpiozero import LED 
 from typing import Optional, Dict
 import w1thermsensor
@@ -16,12 +17,16 @@ class GPIO:
 
     def __init__(self):
         if self._initialized:
-            return  # unikamy ponownej inicjalizacji
+            return 
         self.led = LED(17)
         self.relay_1 = LED(27)
         self.sensor = w1thermsensor.W1ThermSensor()
         self.aht20 = DFRobot_AHT20()
-        self.aht20.begin()
+        while self.aht20.begin() != True:
+            print("failed, please check if the connection is correct?")
+            system.sleep(1)
+            print("Initialization AHT20 Sensor...", end=" ")
+        print("Done, AHT initialized")
         self.aht20.reset()
         self._initialized = True
 
