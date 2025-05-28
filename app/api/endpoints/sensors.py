@@ -1,4 +1,5 @@
 # Endpoints returning actual conditons in the greenhouse. Return n last records from conditionsset table.
+import datetime
 from fastapi import FastAPI, HTTPException, Query, APIRouter
 from fastapi.responses import JSONResponse
 from sqlmodel import Field, Session, SQLModel, select
@@ -9,7 +10,7 @@ from app.core.gpio import GPIO
 router = APIRouter()
 gpio = GPIO()
 
-@router.get("/read/")
+@router.get("/read/", response_model=list[ConditonsSetPublic])
 def read_live_conditions():
     temperature = gpio.get_temperature()
     ht_data = gpio.get_humidity_and_temperature()
@@ -17,11 +18,17 @@ def read_live_conditions():
     if temperature is None or ht_data is None:
         raise HTTPException(status_code=500, detail="Błąd odczytu z czujników")
 
-    return JSONResponse(content={
-        "temperature_ds18b20": temperature,
-        "temperature_aht20": ht_data["temperature"],
-        "humidity": ht_data["humidity"]
-    })
+    return {
+        "id": 0,
+        "uid": "raspberry",
+        "temp_1": temperature,
+        "temp_2": ht_data["temperature"],
+        "temp_3": 0.0,
+        "humidity": ht_data["humidity"],
+        "soil_humidity": 0.0,
+        "lighting": 0.0,
+        "date": datetime.now().astimezone()
+    }
     
 
 @router.get("/from_db/", response_model=list[ConditonsSetPublic])
