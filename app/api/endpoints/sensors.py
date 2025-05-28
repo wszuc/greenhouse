@@ -1,7 +1,6 @@
 # Endpoints returning actual conditons in the greenhouse. Return n last records from conditionsset table.
-import datetime
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, APIRouter
-from fastapi.responses import JSONResponse
 from sqlmodel import Field, Session, SQLModel, select
 from app.db.models import ConditionsSet, ConditonsSetPublic
 from app.db.session import engine
