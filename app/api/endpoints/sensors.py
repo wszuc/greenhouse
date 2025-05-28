@@ -17,7 +17,7 @@ def read_live_conditions():
     if temperature is None or ht_data is None:
         raise HTTPException(status_code=500, detail="Błąd odczytu z czujników")
 
-    return {
+    return [{
         "id": 0,
         "uid": "raspberry",
         "temp_1": temperature,
@@ -27,7 +27,7 @@ def read_live_conditions():
         "soil_humidity": 0.0,
         "lighting": 0.0,
         "date": datetime.now().astimezone()
-    }
+    }]
     
 
 @router.get("/from_db/", response_model=list[ConditonsSetPublic])
