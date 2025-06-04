@@ -2,6 +2,11 @@ from os import system
 from gpiozero import LED 
 from typing import Optional, Dict
 import w1thermsensor
+import busio
+import digitalio
+import board
+import adafruit_mcp3xxx.mcp3008 as MCP
+from adafruit_mcp3xxx.analog_in import AnalogIn
 from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
 
 
@@ -28,6 +33,9 @@ class GPIO:
             print("Initialization AHT20 Sensor...", end=" ")
         print("Done, AHT initialized")
         self.aht20.reset()
+        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+        cs = digitalio.DigitalInOut(board.D25)
+        mcp = MCP.MCP3008(spi, cs)
         self._initialized = True
 
     def led_on(self) -> Optional[int]:
@@ -81,4 +89,20 @@ class GPIO:
                 }
         except RuntimeError as e:
             print(f"Błąd odczytu z czujnika AHT20: {e}")
+            return None
+
+    def get_soil_humidity(self) -> Optional[float]: 
+        try:
+            humidity_voltage = AnalogIn(self.mcp, MCP.P0).voltage
+            return humidity_voltage
+        except RuntimeError as e:
+            print(f"Błąd odczytu z czujnika wilgotności gleby: {e}")
+            return None
+        
+    def get_lighting(self) -> Optional[float]: 
+        try:
+            light_voltage = AnalogIn(self.mcp, MCP.P1).voltage
+            return light_voltage
+        except RuntimeError as e:
+            print(f"Błąd odczytu z fotorezystora: {e}")
             return None

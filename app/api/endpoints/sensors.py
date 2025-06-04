@@ -13,6 +13,8 @@ gpio = GPIO()
 def read_live_conditions():
     temperature = gpio.get_temperature()
     ht_data = gpio.get_humidity_and_temperature()
+    soil_humidity = gpio.get_soil_humidity()
+    lighting = gpio.get_lighting()
 
     if temperature is None or ht_data is None:
         raise HTTPException(status_code=500, detail="Błąd odczytu z czujników")
@@ -24,8 +26,8 @@ def read_live_conditions():
         "temp_2": ht_data["temperature"],
         "temp_3": 0.0,
         "humidity": ht_data["humidity"],
-        "soil_humidity": 0.0,
-        "lighting": 0.0,
+        "soil_humidity": soil_humidity,
+        "lighting": lighting,
         "date": datetime.now().astimezone()
     }]
     
