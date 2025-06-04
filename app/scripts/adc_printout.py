@@ -2,7 +2,7 @@ import time
 import board
 import busio
 import digitalio
-from adafruit_mcp3xxx.mcp3008 import MCP3008
+from adafruit_mcp3xxx.mcp3008 import MCP3008, Pin
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
 # Ustawienie SPI na sprzętowych pinach
@@ -13,8 +13,8 @@ cs = digitalio.DigitalInOut(board.D25)  # lub board.CE0 jeśli używasz GPIO 8
 mcp = MCP3008(spi, cs)
 
 # Kanały: CH0 = wilgotność, CH1 = światło
-soil_sensor = AnalogIn(mcp, MCP3008.P0)
-light_sensor = AnalogIn(mcp, MCP3008.P1)
+soil_sensor = AnalogIn(mcp, Pin.P0)
+light_sensor = AnalogIn(mcp, Pin.P1)
 
 try:
     while True:
