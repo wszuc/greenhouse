@@ -33,9 +33,9 @@ class GPIO:
             print("Initialization AHT20 Sensor...", end=" ")
         print("Done, AHT initialized")
         self.aht20.reset()
-        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
-        cs = digitalio.DigitalInOut(board.D25)
-        mcp = MCP.MCP3008(spi, cs)
+        self.spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+        self.cs = digitalio.DigitalInOut(board.D25)
+        self.mcp = MCP.MCP3008(self.spi, self.cs)
         self._initialized = True
 
     def led_on(self) -> Optional[int]:
