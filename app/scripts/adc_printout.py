@@ -2,8 +2,10 @@ import time
 import board
 import busio
 import digitalio
-from adafruit_mcp3xxx.mcp3008 import MCP3008, Pin
+from adafruit_mcp3xxx.mcp3008 import MCP3008
+from adafruit_mcp3xxx.mcp3xxx import Pin
 from adafruit_mcp3xxx.analog_in import AnalogIn
+
 
 # Ustawienie SPI na sprzętowych pinach
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
