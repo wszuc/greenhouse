@@ -1,7 +1,7 @@
 import time
 import board
 import digitalio
-import Adafruit_CircuitPython_BitbangIO
+import bitbangio
 from adafruit_mcp3xxx.mcp3008 import MCP3008
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
