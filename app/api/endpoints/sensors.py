@@ -1,6 +1,7 @@
 # Endpoints returning actual conditons in the greenhouse. Return n last records from conditionsset table.
 from datetime import datetime
-import os
+import json
+import subprocess
 from fastapi import FastAPI, HTTPException, Query, APIRouter
 from sqlmodel import Field, Session, SQLModel, select
 from app.db.models import ConditionsSet, ConditonsSetPublic
@@ -39,7 +40,7 @@ def get_values(limit: int = 1):
         values = session.exec(select(ConditionsSet).order_by(ConditionsSet.id.desc()).limit(limit)).all()
         return values
     
-@router.get("/read_mqqt/")
+@router.get("/read_mqtt/")
 def read_live_conditions():
     temperature = gpio.get_temperature()
     ht_data = gpio.get_humidity_and_temperature()
@@ -58,11 +59,24 @@ def read_live_conditions():
         "humidity": ht_data["humidity"],
         "soil_humidity": soil_humidity,
         "lighting": lighting,
-        "date": datetime.now().astimezone()
+        "date": datetime.now().astimezone().isoformat()
     }
 
-    # send data via MQQT to thingsboard
+    json_payload = json.dumps(readings)
 
-    result = os.system(f'mosquitto_pub -d -q 1 -h demo.thingsboard.io -p 1883 -t v1/devices/me/telemetry -u "eac44v98ye7olt0al0ge" -m \'{readings}\'')
-    return result
+    try:
+        result = subprocess.run([
+            "mosquitto_pub",
+            "-q", "1",
+            "-h", "demo.thingsboard.io",
+            "-p", "1883",
+            "-t", "v1/devices/me/telemetry",
+            "-u", "eac44v98ye7olt0al0ge",
+            "-m", json_payload
+        ], check=True)
+
+        return {"status": "ok", "sent": readings}
+
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=500, detail=f"Błąd wysyłania danych MQTT: {e}")
     
