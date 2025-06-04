@@ -1,3 +1,4 @@
+import time
 import busio
 import digitalio
 import board
@@ -13,8 +14,15 @@ cs = digitalio.DigitalInOut(board.D25)
 # create the mcp object
 mcp = MCP.MCP3008(spi, cs)
 
-# create an analog input channel on pin 0
-chan = AnalogIn(mcp, MCP.P0)
+try:
+    while True:
+        humidity_voltage = AnalogIn(mcp, MCP.P0).voltage
+        light_voltage = AnalogIn(mcp, MCP.P1).voltage
 
-print('Raw ADC Value: ', chan.value)
-print('ADC Voltage: ' + str(chan.voltage) + 'V')
+        print(f'Humidity voltage: {humidity_voltage:.2f} V')
+        print(f'Light voltage   : {light_voltage:.2f} V')
+        print('-' * 30)
+
+        time.sleep(0.1)  # 100 ms
+except KeyboardInterrupt:
+    print("end")
