@@ -63,7 +63,6 @@ def read_live_conditions():
 
     # send data via MQQT to thingsboard
 
-    result = os.system(f'mosquitto_pub -d -q 1 -h demo.thingsboard.io -p 1883 -t v1/devices/me/telemetry -u "eac44v98ye7olt0al0ge" -m "${readings}"')
-
+    result = os.system(f'mosquitto_pub -d -q 1 -h demo.thingsboard.io -p 1883 -t v1/devices/me/telemetry -u "eac44v98ye7olt0al0ge" -m \'{readings}\'')
     return result
     
