@@ -39,7 +39,7 @@ def get_values(limit: int = 1):
         values = session.exec(select(ConditionsSet).order_by(ConditionsSet.id.desc()).limit(limit)).all()
         return values
     
-@router.get("/read_mqqt/", response_model=list[ConditonsSetPublic])
+@router.get("/read_mqqt/")
 def read_live_conditions():
     temperature = gpio.get_temperature()
     ht_data = gpio.get_humidity_and_temperature()
