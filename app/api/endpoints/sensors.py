@@ -41,7 +41,7 @@ def get_values(limit: int = 1):
         return values
     
 @router.get("/read_mqtt/")
-def read_live_conditions():
+def read_mqqt():
     temperature = gpio.get_temperature()
     ht_data = gpio.get_humidity_and_temperature()
     soil_humidity = gpio.get_soil_humidity()
