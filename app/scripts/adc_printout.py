@@ -1,20 +1,26 @@
-import busio
-import digitalio
+import time
 import board
-import adafruit_mcp3xxx.mcp3008 as MCP
+import digitalio
+import bitbangio
+from adafruit_mcp3xxx.mcp3008 import MCP3008
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
-# create the spi bus
-spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+# Ustawienie SPI na niestandardowych pinach
+spi = bitbangio.SPI(clock=board.D11, MISO=board.D13, MOSI=board.D19)
+cs = digitalio.DigitalInOut(board.D26)  # CS
 
-# create the cs (chip select)
-cs = digitalio.DigitalInOut(board.D5)
+# Inicjalizacja MCP3008
+mcp = MCP3008(spi, cs)
 
-# create the mcp object
-mcp = MCP.MCP3008(spi, cs)
+# Kanały: CH0 = wilgotność, CH1 = światło
+soil_sensor = AnalogIn(mcp, MCP3008.P0)
+light_sensor = AnalogIn(mcp, MCP3008.P1)
 
-# create an analog input channel on pin 0
-chan = AnalogIn(mcp, MCP.P0)
-
-print('Raw ADC Value: ', chan.value)
-print('ADC Voltage: ' + str(chan.voltage) + 'V')
+try:
+    while True:
+        print(f"Soil moisture: {soil_sensor.voltage:.2f} V")
+        print(f"Light level  : {light_sensor.voltage:.2f} V")
+        print("-" * 30)
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("Zakończono.")
