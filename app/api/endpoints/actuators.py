@@ -6,12 +6,12 @@ from app.core.gpio import GPIO
 router = APIRouter()
 gpio = GPIO()
 
-@router.post("/heater-on")
+@router.post("/watering-on")
 def turn_on():
-    gpio.heater_on()
-    return {"status": "HEATER ON"}
+    gpio.watering_on()
+    return {"status": "Watering is ON"}
 
-@router.post("/heater-off")
+@router.post("/watering-off")
 def turn_off():
-    gpio.heater_off()
-    return {"status": "HEATER OFF"}
+    gpio.watering_off()
+    return {"status": "Watering is OFF"}

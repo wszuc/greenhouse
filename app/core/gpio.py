@@ -54,7 +54,7 @@ class GPIO:
             print("Error during operation led.off(): ", error)
             return None
         
-    def heater_on(self) -> Optional[int]:
+    def watering_on(self) -> Optional[int]:
         try:
             self.relay_1.on()
             return 0
@@ -62,7 +62,7 @@ class GPIO:
             print("Relay 1 couldn't be turned on: ", error)
             return None
         
-    def heater_off(self) -> Optional[int]:
+    def watering_off(self) -> Optional[int]:
         try:
             self.relay_1.off()
             return 0
