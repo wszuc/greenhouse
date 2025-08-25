@@ -2,10 +2,10 @@
 
 from datetime import datetime
 from sqlmodel import SQLModel, Field
-from typing import Optional, Any
+from typing import Optional
 from pydantic import field_validator
 from enum import Enum
-from sqlalchemy import JSON
+from sqlalchemy import JSON, Column
 
 def get_local_datetime():
     return datetime.now().astimezone()
@@ -63,9 +63,9 @@ class SystemEventBase(SQLModel):
     event_type: EventType
     severity: EventSeverity = EventSeverity.INFO
     description: str
-    details: Optional[Any] = Field(default=None, sa_column=JSON)
+    details: Optional[str] = Field(default=None, sa_column=Column(JSON))
     actuator_id: Optional[str] = None  # Which actuator was affected
-    sensor_values: Optional[Any] = Field(default=None, sa_column=JSON)  # Sensor readings at time of event
+    sensor_values: Optional[str] = Field(default=None, sa_column=Column(JSON))  # Sensor readings at time of event
     user_id: Optional[str] = None  # Who triggered the event (if manual)
     date: datetime = Field(default_factory=get_local_datetime)
 

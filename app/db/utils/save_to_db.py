@@ -1,4 +1,5 @@
 import time
+import json
 from sqlmodel import Session
 from app.db.session import engine
 from app.db.models import ConditionsSet, SystemEvent, EventType, EventSeverity
@@ -70,14 +71,18 @@ def log_system_event(
     try:
         init_db()
         
+        # Convert dict to JSON string for database storage
+        details_json = json.dumps(details) if details else None
+        sensor_values_json = json.dumps(sensor_values) if sensor_values else None
+        
         with Session(engine) as session:
             new_event = SystemEvent(
                 event_type=event_type,
                 severity=severity,
                 description=description,
-                details=details,
+                details=details_json,
                 actuator_id=actuator_id,
-                sensor_values=sensor_values,
+                sensor_values=sensor_values_json,
                 user_id=user_id,
                 uid=uid
             )
