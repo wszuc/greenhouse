@@ -9,6 +9,8 @@ import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
 import time
+from app.db.utils.save_to_db import log_system_event
+from app.db.models import EventType, EventSeverity
 
 
 class GPIO:
@@ -85,9 +87,22 @@ class GPIO:
             return None
         try:
             self.led.on()
+            # Log the event
+            log_system_event(
+                event_type=EventType.LED_ON,
+                description="LED indicator turned on",
+                actuator_id="led_gpio17"
+            )
             return 0
         except RuntimeError as error:
             print("Error during operation led.on(): ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to turn on LED: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="led_gpio17"
+            )
             return None
 
     def led_off(self) -> Optional[int]:
@@ -96,9 +111,22 @@ class GPIO:
             return None
         try:
             self.led.off()
+            # Log the event
+            log_system_event(
+                event_type=EventType.LED_OFF,
+                description="LED indicator turned off",
+                actuator_id="led_gpio17"
+            )
             return 0
         except RuntimeError as error:
             print("Error during operation led.off(): ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to turn off LED: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="led_gpio17"
+            )
             return None
         
     def watering_on(self) -> Optional[int]:
@@ -107,9 +135,23 @@ class GPIO:
             return None
         try:
             self.relay_1.on()
+            # Log the event
+            log_system_event(
+                event_type=EventType.WATERING_ON,
+                description="Watering system activated",
+                actuator_id="relay_gpio27",
+                details={"action": "watering_start", "duration_planned": "until_manual_stop"}
+            )
             return 0
         except RuntimeError as error:
             print("Relay 1 couldn't be turned on: ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to activate watering system: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="relay_gpio27"
+            )
             return None
         
     def watering_off(self) -> Optional[int]:
@@ -118,9 +160,22 @@ class GPIO:
             return None
         try:
             self.relay_1.off()
+            # Log the event
+            log_system_event(
+                event_type=EventType.WATERING_OFF,
+                description="Watering system deactivated",
+                actuator_id="relay_gpio27"
+            )
             return 0
         except RuntimeError as error:
             print("Relay 1 couldn't be turned off: ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to deactivate watering system: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="relay_gpio27"
+            )
             return None
         
     def get_temperature(self) -> Optional[float]:
