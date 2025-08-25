@@ -9,7 +9,7 @@ import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
 import time
-from app.db.utils.save_to_db import log_system_event
+from app.db.utils.event_logger import log_system_event
 from app.db.models import EventType, EventSeverity
 
 
