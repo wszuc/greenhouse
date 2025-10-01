@@ -29,14 +29,14 @@ class GPIO:
         # Initialize GPIO pins with error handling
         try:
             self.led = LED(17)
-            self.led.off()
             print("LED initialized successfully")
         except Exception as e:
             print(f"Warning: LED initialization failed: {e}")
             self.led = None
             
         try:
-            self.relay_1 = LED(27).off()
+            self.relay_1 = LED(27)
+            self.relay_1.off()
             print("Relay initialized successfully")
         except Exception as e:
             print(f"Warning: Relay initialization failed: {e}")
