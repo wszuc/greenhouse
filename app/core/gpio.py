@@ -36,7 +36,6 @@ class GPIO:
             
         try:
             self.relay_1 = LED(27)
-            self.relay_1.off()
             print("Relay initialized successfully")
         except Exception as e:
             print(f"Warning: Relay initialization failed: {e}")
