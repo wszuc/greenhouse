@@ -62,6 +62,7 @@ class GPIO:
             while not initialized and (time.time() - start_time) < timeout:
                 print("Initializing AHT20 Sensor...", end=" ")
                 initialized = self.aht20.begin()
+                print("Initialized: ", initialized)
                 time.sleep(0.5)
 
             if initialized:
