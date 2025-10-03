@@ -290,7 +290,7 @@ class GPIO:
             print("Warning: MCP3008 ADC not available, returning default value")
             return 0.0  # Default voltage (middle of 0-5V range)
         try:
-            light_voltage = AnalogIn(self.mcp, MCP.P1).voltage
+            light_voltage = AnalogIn(self.mcp, MCP.P7).voltage
             return light_voltage
         except RuntimeError as e:
             print(f"Error reading from light sensor: {e}, returning default value")
