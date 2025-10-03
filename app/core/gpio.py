@@ -56,7 +56,7 @@ class GPIO:
         try:
             self.aht20 = DFRobot_AHT20()
             # Try to initialize AHT20 with timeout
-            timeout = 3  # 3 seconds timeout
+            timeout = 10
             start_time = time.time()
             while self.aht20.begin() != True and (time.time() - start_time) < timeout:
                 print("Initializing AHT20 Sensor...", end=" ")
