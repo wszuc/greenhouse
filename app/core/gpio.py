@@ -55,22 +55,26 @@ class GPIO:
         # Initialize AHT20 sensor with error handling
         try:
             self.aht20 = DFRobot_AHT20()
-            # Try to initialize AHT20 with timeout
             timeout = 10
             start_time = time.time()
-            while self.aht20.begin() != True and (time.time() - start_time) < timeout:
+            initialized = False
+
+            while not initialized and (time.time() - start_time) < timeout:
                 print("Initializing AHT20 Sensor...", end=" ")
+                initialized = self.aht20.begin()
                 time.sleep(0.5)
-            
-            if self.aht20.begin() == True:
+
+            if initialized:
                 print("Done, AHT20 initialized")
                 self.aht20.reset()
             else:
                 print("Warning: AHT20 initialization timed out")
                 self.aht20 = None
+
         except Exception as e:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
             self.aht20 = None
+
 
         # Initialize SPI and MCP3008 with error handling
         try:
