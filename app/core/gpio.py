@@ -88,7 +88,7 @@ class GPIO:
 
         # initialize LED strip WS2812B
         try:
-            self.led_strip = neopixel.NeoPixel(board.D4, 50, auto_write=True)
+            self.led_strip = neopixel.NeoPixel(board.D18, 50, auto_write=True)
             print("LED strip initialized!")
         except Exception as e:
             print("Error while initializing LED strip: ", e)
