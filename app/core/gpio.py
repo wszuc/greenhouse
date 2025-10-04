@@ -11,6 +11,7 @@ from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
 import time
 from app.db.utils.event_logger import log_system_event
 from app.db.models import EventType, EventSeverity
+import neopixel
 
 
 class GPIO:
@@ -26,14 +27,15 @@ class GPIO:
         if self._initialized:
             return 
         
-        # Initialize GPIO pins with error handling
+        # initialize test LED
         try:
             self.led = LED(17)
             print("LED initialized successfully")
         except Exception as e:
             print(f"Warning: LED initialization failed: {e}")
             self.led = None
-            
+        
+        # initialize 1st relay (heater)
         try:
             self.relay_1 = LED(27)
             self.relay_1.on()
@@ -42,9 +44,7 @@ class GPIO:
             print(f"Warning: Relay initialization failed: {e}")
             self.relay_1 = None
 
-        
-
-        # Initialize temperature sensor with error handling
+        # initialize temperature sensor 1 wire
         try:
             self.sensor = w1thermsensor.W1ThermSensor()
             print("DS18B20 temperature sensor initialized successfully")
@@ -52,7 +52,7 @@ class GPIO:
             print(f"Warning: DS18B20 temperature sensor initialization failed: {e}")
             self.sensor = None
 
-        # Initialize AHT20 sensor with error handling
+        # Initialize AHT20 
         try:
             self.aht20 = DFRobot_AHT20()
             timeout = 10
@@ -76,8 +76,7 @@ class GPIO:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
             self.aht20 = None
 
-
-        # Initialize SPI and MCP3008 with error handling
+        # Initialize SPI and MCP3008
         try:
             self.spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
             self.cs = digitalio.DigitalInOut(board.D25)
@@ -87,7 +86,61 @@ class GPIO:
             print(f"Warning: MCP3008 ADC initialization failed: {e}")
             self.mcp = None
 
+        # initialize LED strip WS2812B
+        try:
+            self.led_strip = neopixel.NeoPixel(board.D18, 50, auto_write=True)
+            print("LED strip initialized!")
+        except Exception as e:
+            print("Error while initializing LED strip: ", e)
+            self.led_strip = None
+
         self._initialized = True
+
+    def led_strip_on(self) -> Optional[int]:
+        if self.led_strip is None:
+            print("Warning: LED strip not available")
+            return None
+        try:
+            self.led_strip.fill((255, 255, 255))  # biały
+            # Log the event
+            log_system_event(
+                event_type=EventType.LED_ON,
+                description="LED strip turned on (white)",
+                actuator_id="led_strip_gpio18"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Error during LED strip on: ", error)
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to turn on LED strip: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="led_strip_gpio18"
+            )
+            return None
+
+    def led_strip_off(self) -> Optional[int]:
+        if self.led_strip is None:
+            print("Warning: LED strip not available")
+            return None
+        try:
+            self.led_strip.fill((0, 0, 0))  # zgaszony
+            # Log the event
+            log_system_event(
+                event_type=EventType.LED_OFF,
+                description="LED strip turned off",
+                actuator_id="led_strip_gpio18"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Error during LED strip off: ", error)
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to turn off LED strip: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="led_strip_gpio18"
+            )
+            return None
 
     def led_on(self) -> Optional[int]:
         if self.led is None:
@@ -137,90 +190,41 @@ class GPIO:
             )
             return None
         
-    def watering_on(self) -> Optional[int]:
-        if self.relay_1 is None:
-            print("Warning: Relay not available")
-            return None
-        try:
-            self.relay_1.on()
-            # Log the event
-            log_system_event(
-                event_type=EventType.WATERING_ON,
-                description="Watering system activated",
-                actuator_id="relay_gpio27",
-                details={"action": "watering_start", "duration_planned": "until_manual_stop"}
-            )
-            return 0
-        except RuntimeError as error:
-            print("Relay 1 couldn't be turned on: ", error)
-            # Log the error
-            log_system_event(
-                event_type=EventType.ACTUATOR_ERROR,
-                description=f"Failed to activate watering system: {error}",
-                severity=EventSeverity.ERROR,
-                actuator_id="relay_gpio27"
-            )
-            return None
-        
-    def watering_off(self) -> Optional[int]:
-        if self.relay_1 is None:
-            print("Warning: Relay not available")
-            return None
-        try:
-            self.relay_1.off()
-            # Log the event
-            log_system_event(
-                event_type=EventType.WATERING_OFF,
-                description="Watering system deactivated",
-                actuator_id="relay_gpio27"
-            )
-            return 0
-        except RuntimeError as error:
-            print("Relay 1 couldn't be turned off: ", error)
-            # Log the error
-            log_system_event(
-                event_type=EventType.ACTUATOR_ERROR,
-                description=f"Failed to deactivate watering system: {error}",
-                severity=EventSeverity.ERROR,
-                actuator_id="relay_gpio27"
-            )
-            return None
-        
-    def watering_on(self) -> Optional[int]:
-        if self.relay_1 is None:
-            print("Warning: Relay not available")
-            return None
-        try:
-            self.relay_1.on()
-            # Log the event
-            log_system_event(
-                event_type=EventType.WATERING_ON,
-                description="Watering system activated",
-                actuator_id="relay_gpio27",
-                details={"action": "watering_start", "duration_planned": "until_manual_stop"}
-            )
-            return 0
-        except RuntimeError as error:
-            print("Relay 1 couldn't be turned on: ", error)
-            # Log the error
-            log_system_event(
-                event_type=EventType.ACTUATOR_ERROR,
-                description=f"Failed to activate watering system: {error}",
-                severity=EventSeverity.ERROR,
-                actuator_id="relay_gpio27"
-            )
-            return None
-        
     def heating_off(self) -> Optional[int]:
         if self.relay_1 is None:
             print("Warning: Relay not available")
             return None
         try:
+            self.relay_1.on()
+            # Log the event
+            log_system_event(
+                event_type=EventType.HEATING_OFF,
+                description="Heating system activated",
+                actuator_id="relay_gpio27",
+                details={"action": "heating_start", "duration_planned": "until_manual_stop"}
+            )
+            return 0
+        except RuntimeError as error:
+            print("Relay 1 couldn't be turned on: ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to activate heating: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="relay_gpio27"
+            )
+            return None
+        
+    def heating_on(self) -> Optional[int]:
+        if self.relay_1 is None:
+            print("Warning: Relay not available")
+            return None
+        try:
             self.relay_1.off()
             # Log the event
             log_system_event(
                 event_type=EventType.WATERING_OFF,
-                description="Watering system deactivated",
+                description="Heating system activated",
                 actuator_id="relay_gpio27"
             )
             return 0
@@ -229,7 +233,7 @@ class GPIO:
             # Log the error
             log_system_event(
                 event_type=EventType.ACTUATOR_ERROR,
-                description=f"Failed to deactivate watering system: {error}",
+                description=f"Failed to activate heating: {error}",
                 severity=EventSeverity.ERROR,
                 actuator_id="relay_gpio27"
             )

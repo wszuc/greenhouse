@@ -19,6 +19,16 @@ def turn_off():
     gpio.watering_off()
     return {"status": "Watering is OFF"}
 
+@router.post("/led-strip-on")
+def led_strip_on():
+    gpio.led_strip_on()
+    return {"status": "LED strip is ON (white)"}
+
+@router.post("/led-strip-off")
+def led_strip_off():
+    gpio.led_strip_off()
+    return {"status": "LED strip is OFF"}
+
 @router.get("/events/", response_model=list[SystemEventPublic])
 def get_system_events(
     limit: int = 50,
