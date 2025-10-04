@@ -279,7 +279,7 @@ class GPIO:
             print("Warning: MCP3008 ADC not available, returning default value")
             return 0.0  # Default voltage (middle of 0-5V range)
         try:
-            humidity_voltage = AnalogIn(self.mcp, MCP.P0).voltage
+            humidity_voltage = AnalogIn(self.mcp, MCP.P6).voltage
             return humidity_voltage
         except RuntimeError as e:
             print(f"Error reading from soil humidity sensor: {e}, returning default value")
