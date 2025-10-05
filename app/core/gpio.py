@@ -35,14 +35,23 @@ class GPIO:
             print(f"Warning: LED initialization failed: {e}")
             self.led = None
         
-        # initialize 1st relay (heater)
+         # initialize 1st relay (water pump)
         try:
-            self.relay_1 = LED(27)
+            self.relay_1 = LED(38)
             self.relay_1.on()
             print("Relay initialized successfully")
         except Exception as e:
             print(f"Warning: Relay initialization failed: {e}")
             self.relay_1 = None
+
+        # initialize 2n relay (heater)
+        try:
+            self.relay_2 = LED(27)
+            self.relay_2.on()
+            print("Relay initialized successfully")
+        except Exception as e:
+            print(f"Warning: Relay initialization failed: {e}")
+            self.relay_2 = None
 
         # initialize temperature sensor 1 wire
         try:
@@ -221,11 +230,11 @@ class GPIO:
             return None
         
     def heating_off(self) -> Optional[int]:
-        if self.relay_1 is None:
+        if self.relay_2 is None:
             print("Warning: Relay not available")
             return None
         try:
-            self.relay_1.on()
+            self.relay_2.on()
             # Log the event
             log_system_event(
                 event_type=EventType.HEATING_OFF,
@@ -235,7 +244,7 @@ class GPIO:
             )
             return 0
         except RuntimeError as error:
-            print("Relay 1 couldn't be turned on: ", error)
+            print("Relay 2 couldn't be turned on: ", error)
             # Log the error
             log_system_event(
                 event_type=EventType.ACTUATOR_ERROR,
@@ -246,6 +255,30 @@ class GPIO:
             return None
         
     def heating_on(self) -> Optional[int]:
+        if self.relay_2 is None:
+            print("Warning: Relay not available")
+            return None
+        try:
+            self.relay_2.off()
+            # Log the event
+            log_system_event(
+                event_type=EventType.WATERING_OFF,
+                description="Heating system activated",
+                actuator_id="relay_gpio27"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Relay 2 couldn't be turned off: ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to activate heating: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="relay_gpio27"
+            )
+            return None
+        
+    def watering_on(self) -> Optional[int]:
         if self.relay_1 is None:
             print("Warning: Relay not available")
             return None
@@ -255,6 +288,30 @@ class GPIO:
             log_system_event(
                 event_type=EventType.WATERING_OFF,
                 description="Heating system activated",
+                actuator_id="relay_gpio27"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Relay 1 couldn't be turned off: ", error)
+            # Log the error
+            log_system_event(
+                event_type=EventType.ACTUATOR_ERROR,
+                description=f"Failed to activate heating: {error}",
+                severity=EventSeverity.ERROR,
+                actuator_id="relay_gpio27"
+            )
+            return None
+        
+    def watering_off(self) -> Optional[int]:
+        if self.relay_1 is None:
+            print("Warning: Relay not available")
+            return None
+        try:
+            self.relay_1.on()
+            # Log the event
+            log_system_event(
+                event_type=EventType.WATERING_OFF,
+                description="Watering system activated",
                 actuator_id="relay_gpio27"
             )
             return 0

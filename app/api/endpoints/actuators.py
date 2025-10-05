@@ -19,6 +19,16 @@ def turn_off():
     gpio.watering_off()
     return {"status": "Watering is OFF"}
 
+@router.post("/heating-on")
+def turn_on():
+    gpio.heating_on()
+    return {"status": "Watering is ON"}
+
+@router.post("/heating-off")
+def turn_off():
+    gpio.heating_off()
+    return {"status": "Watering is OFF"}
+
 @router.post("/led-strip-on")
 def led_strip_on():
     gpio.led_strip_on()
