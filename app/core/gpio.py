@@ -37,7 +37,7 @@ class GPIO:
         
          # initialize 1st relay (water pump)
         try:
-            self.relay_1 = LED(35)
+            self.relay_1 = LED(19)
             self.relay_1.on()
             print("Relay initialized successfully")
         except Exception as e:
