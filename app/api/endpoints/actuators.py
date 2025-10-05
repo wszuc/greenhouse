@@ -29,6 +29,22 @@ def led_strip_off():
     gpio.led_strip_off()
     return {"status": "LED strip is OFF"}
 
+@router.post("/roof-open")
+def roof_open():
+    try:
+        gpio.roof_open()
+        return {"status": f"Servo set to OPEN"}
+    except Exception as e:
+        return {"error": str(e)}
+    
+@router.post("/roof-close")
+def roof_close():
+    try:
+        gpio.roof_close()
+        return {"status": f"Servo set to CLOSE"}
+    except Exception as e:
+        return {"error": str(e)}
+
 @router.get("/events/", response_model=list[SystemEventPublic])
 def get_system_events(
     limit: int = 50,

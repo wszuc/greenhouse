@@ -1,5 +1,5 @@
 from os import system
-from gpiozero import LED 
+from gpiozero import LED, Servo
 from typing import Optional, Dict
 import w1thermsensor
 import busio
@@ -94,7 +94,37 @@ class GPIO:
             print("Error while initializing LED strip: ", e)
             self.led_strip = None
 
+        # init servo
+        try:
+            self.servo = Servo(22)
+            print("Servo initialized successfully on GPIO22")
+        except Exception as e:
+            print(f"Warning: Servo initialization failed: {e}")
+            self.servo = None
+
         self._initialized = True
+
+    def roof_open(self) -> Optional[int]:
+        if self.servo is None:
+            print("Warning: Servo not available")
+            return None
+        try:
+            position = max(-1.0, min(1.0, 0))
+            self.servo.value = position
+            print(f"Servo set to position OPEN")
+        except Exception as e:
+            print(f"Error while moving servo: {e}")
+
+    def roof_close(self) -> Optional[int]:
+        if self.servo is None:
+            print("Warning: Servo not available")
+            return None
+        try:
+            position = max(-1.0, min(1.0, 1))
+            self.servo.value = position
+            print(f"Servo set to position CLOSE")
+        except Exception as e:
+            print(f"Error while moving servo: {e}")
 
     def led_strip_on(self) -> Optional[int]:
         if self.led_strip is None:
