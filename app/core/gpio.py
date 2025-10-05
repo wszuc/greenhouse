@@ -37,7 +37,7 @@ class GPIO:
         
          # initialize 1st relay (water pump)
         try:
-            self.relay_1 = LED(21)
+            self.relay_1 = LED(35)
             self.relay_1.on()
             print("Relay initialized successfully")
         except Exception as e:
@@ -287,7 +287,7 @@ class GPIO:
             # Log the event
             log_system_event(
                 event_type=EventType.WATERING_OFF,
-                description="Heating system activated",
+                description="Watering system activated",
                 actuator_id="relay_gpio27"
             )
             return 0
