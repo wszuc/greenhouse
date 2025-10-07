@@ -346,6 +346,7 @@ class GPIO:
             }
         try:
             if self.aht20.start_measurement_ready(crc_en = True):
+                time.sleep(0.1)
                 temperature = self.aht20.get_temperature_C()
                 humidity = self.aht20.get_humidity_RH()
                 return {
