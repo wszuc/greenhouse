@@ -345,7 +345,7 @@ class GPIO:
                 "humidity": 0.0      # Default humidity in %
             }
         try:
-            if self.aht20.start_measurement_ready(crc_en = True):
+            if self.aht20.start_measurement_ready():
                 time.sleep(0.1)
                 temperature = self.aht20.get_temperature_C()
                 humidity = self.aht20.get_humidity_RH()
