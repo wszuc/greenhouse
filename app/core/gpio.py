@@ -53,13 +53,19 @@ class GPIO:
             print(f"Warning: Relay initialization failed: {e}")
             self.relay_2 = None
 
-        # initialize temperature sensor 1 wire
         try:
-            self.sensors = w1thermsensor.W1ThermSensor.get_available_sensors()
-            print(f"Detected {len(self.sensors)} 1-Wire sensors")
+            sensors = w1thermsensor.W1ThermSensor.get_available_sensors()
+            if sensors:
+                self.sensors = sensors
+                print(f"Detected {len(self.sensors)} 1-Wire temperature sensors:")
+                for s in self.sensors:
+                    print(f" - Sensor ID: {s.id}")
+            else:
+                print("Warning: No 1-Wire temperature sensors detected.")
+                self.sensors = []
         except Exception as e:
             print(f"Warning: DS18B20 temperature sensor initialization failed: {e}")
-            self.sensor = None
+            self.sensors = []
 
         # Initialize AHT20 
         try:
@@ -311,16 +317,20 @@ class GPIO:
             )
             return None
         
-    def get_temperature(self) -> Optional[float]:
-        if self.sensor is None:
-            print("Warning: DS18B20 temperature sensor not available, returning default value")
-            return 0.0  # Default temperature in Celsius
-        try:
-            temp = self.sensor.get_temperature()
-            return temp
-        except RuntimeError as error:
-            print("Error while reading temperature from temp. sensor: ", error)
-            return 0.0  # Default temperature in Celsius
+    def get_temperatures(self):
+        readings = {}
+        if not hasattr(self, "sensors") or not self.sensors:
+            print("No 1-Wire sensors available, returning empty readings")
+            return readings
+
+        for sensor in self.sensors:
+            try:
+                readings[sensor.id] = round(sensor.get_temperature(), 2)
+            except Exception as e:
+                print(f"Failed to read sensor {sensor.id}: {e}")
+                readings[sensor.id] = None
+
+        return readings
 
     def get_humidity_and_temperature(self) -> Optional[Dict[str, float]]: 
         if self.aht20 is None:

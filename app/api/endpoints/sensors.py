@@ -14,20 +14,24 @@ gpio = GPIO()
 @router.get("/read/", response_model=list[ConditonsSetPublic])
 def read_live_conditions():
     # Get sensor readings with fallback to default values
-    temperature = gpio.get_temperature()
+    temperatures = gpio.get_temperatures()
     ht_data = gpio.get_humidity_and_temperature()
     soil_humidity = gpio.get_soil_humidity()
     lighting = gpio.get_lighting()
 
-    if temperature is None or ht_data is None:
+    temp_values = list(temperatures.values()) if temperatures else []
+    temp_1 = temp_values[0] if len(temp_values) > 0 and temp_values[0] is not None else 0.0
+    temp_2 = temp_values[1] if len(temp_values) > 1 and temp_values[1] is not None else 0.0
+
+    if temperatures is None and ht_data is None:
         raise HTTPException(status_code=500, detail="Błąd odczytu z czujników")
 
     return [{
         "id": 0,
         "uid": "raspberry",
-        "temp_1": temperature,
+        "temp_1": temp_1,
         "temp_2": ht_data["temperature"],
-        "temp_3": 0.0,
+        "temp_3": temp_2,
         "humidity": ht_data["humidity"],
         "soil_humidity": soil_humidity,
         "lighting": lighting,
