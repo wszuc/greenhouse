@@ -76,7 +76,7 @@ class GPIO:
 
             if initialized:
                 print("Done, AHT20 initialized")
-                
+
             else:
                 print("Warning: AHT20 initialization timed out")
                 self.aht20 = None
@@ -344,27 +344,32 @@ class GPIO:
                 "temperature": 0.0,  # Default temperature in Celsius
                 "humidity": 0.0      # Default humidity in %
             }
-        try:
-            if self.aht20.start_measurement_ready():
-                time.sleep(0.1)
-                temperature = self.aht20.get_temperature_C()
-                humidity = self.aht20.get_humidity_RH()
-                return {
-                    "temperature": temperature,
-                    "humidity": humidity
-                }
-            else:
-                print("Warning: AHT20 measurement not ready, returning default values")
-                return {
-                    "temperature": 0.0,  # Default temperature in Celsius
-                    "humidity": 0.0      # Default humidity in %
-                }
+        try:    
+            # Try to read temperature 10 times
+            for i in range(10):
+                if self.aht20.start_measurement_ready():
+                    temperature = self.aht20.get_temperature_C()
+                    humidity = self.aht20.get_humidity_RH()
+                    return {
+                        "temperature": temperature,
+                        "humidity": humidity
+                    }
+                else:
+                    time.sleep(0.1)
+            
+            print("Warning: AHT20 measurement not ready after 10 tries, returning default values")
+            return {
+                "temperature": 0.0,  # Default temperature in Celsius
+                "humidity": 0.0      # Default humidity in %
+            }
         except RuntimeError as e:
             print(f"Error reading from AHT20 sensor: {e}, returning default values")
             return {
                 "temperature": 0.0,  # Default temperature in Celsius
                 "humidity": 0.0      # Default humidity in %
             }
+                
+                
 
     def get_soil_humidity(self) -> Optional[float]: 
         if self.mcp is None:
