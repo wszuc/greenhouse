@@ -23,4 +23,5 @@ raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
 humidity = (raw_humidity / 1048576.0) * 100.0
 temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
 
-print(f"Temperature: {temperature:.2f} °C"
+print(f"Temperature: {temperature:.2f} °C")
+print(f"Humidity: {humidity:.2f} %")
