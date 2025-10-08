@@ -1,18 +1,26 @@
 import time
-import board
-import busio
-from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
+import smbus2
 
-i2c = busio.I2C(board.SCL, board.SDA)
-aht = DFRobot_AHT20()
+I2C_ADDR = 0x38
+bus = smbus2.SMBus(1)
 
-print("Initializing AHT20...")
-if not aht.begin():
-    print("AHT20 not detected!")
-    exit(1)
+# Sprawdzenie statusu
+status = bus.read_byte_data(I2C_ADDR, 0x71)
+print(f"Status: 0x{status:02X}")
 
-while True:
-    temp = aht.get_temperature()
-    hum = aht.get_humidity()
-    print(f"Temp: {temp:.2f}°C, Hum: {hum:.2f}%")
-    time.sleep(2)
+# Wyślij polecenie pomiaru (trigger measurement)
+bus.write_i2c_block_data(I2C_ADDR, 0xAC, [0x33, 0x00])
+time.sleep(0.1)  # czas konwersji ~80ms
+
+# Odczytaj 6 bajtów z pomiaru
+data = bus.read_i2c_block_data(I2C_ADDR, 0x00, 6)
+print("Raw data:", [hex(x) for x in data])
+
+# Parsowanie surowych danych
+raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
+raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
+
+humidity = (raw_humidity / 1048576.0) * 100.0
+temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
+
+print(f"Temperature: {temperature:.2f} °C"
