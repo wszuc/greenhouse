@@ -55,8 +55,8 @@ class GPIO:
 
         # initialize temperature sensor 1 wire
         try:
-            self.sensor = w1thermsensor.W1ThermSensor()
-            print("DS18B20 temperature sensor initialized successfully")
+            self.sensors = w1thermsensor.W1ThermSensor.get_available_sensors()
+            print(f"Detected {len(self.sensors)} 1-Wire sensors")
         except Exception as e:
             print(f"Warning: DS18B20 temperature sensor initialization failed: {e}")
             self.sensor = None
