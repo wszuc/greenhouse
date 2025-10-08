@@ -7,7 +7,7 @@ import digitalio
 import board
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
-from app.external_libs.DFRobot_AHT20 import DFRobot_AHT20
+import smbus2
 import time
 from app.db.utils.event_logger import log_system_event
 from app.db.models import EventType, EventSeverity
@@ -63,23 +63,8 @@ class GPIO:
 
         # Initialize AHT20 
         try:
-            self.aht20 = DFRobot_AHT20()
-            timeout = 10
-            start_time = time.time()
-            initialized = False
-
-            while not initialized and (time.time() - start_time) < timeout:
-                print("Initializing AHT20 Sensor...", end=" ")
-                initialized = self.aht20.begin()
-                print("Initialized: ", initialized)
-                time.sleep(0.5)
-
-            if initialized:
-                print("Done, AHT20 initialized")
-
-            else:
-                print("Warning: AHT20 initialization timed out")
-                self.aht20 = None
+            self.I2C_ADDR = 0x38
+            self.aht20 = smbus2.SMBus(1)
 
         except Exception as e:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
@@ -345,23 +330,23 @@ class GPIO:
                 "humidity": 0.0      # Default humidity in %
             }
         try:    
-            # Try to read temperature 10 times
-            for i in range(16):
-                if self.aht20.start_measurement_ready():
-                    temperature = self.aht20.get_temperature_C()
-                    humidity = self.aht20.get_humidity_RH()
-                    return {
-                        "temperature": temperature,
-                        "humidity": humidity
-                    }
-                else:
-                    time.sleep(2)
-            
-            print("Warning: AHT20 measurement not ready after 10 tries, returning default values")
+            status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
+            self.sht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
+            time.sleep(0.1)  # czas konwersji ~80ms
+
+            data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
+
+            raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
+            raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
+
+            humidity = (raw_humidity / 1048576.0) * 100.0
+            temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
+
             return {
-                "temperature": 0.0,  # Default temperature in Celsius
-                "humidity": 0.0      # Default humidity in %
+                "temperature": temperature,
+                "humidity": humidity
             }
+            
         except RuntimeError as e:
             print(f"Error reading from AHT20 sensor: {e}, returning default values")
             return {
