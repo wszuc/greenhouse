@@ -355,7 +355,7 @@ class GPIO:
                         "humidity": humidity
                     }
                 else:
-                    time.sleep(0.1)
+                    time.sleep(2)
             
             print("Warning: AHT20 measurement not ready after 10 tries, returning default values")
             return {
