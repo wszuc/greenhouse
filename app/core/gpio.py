@@ -76,7 +76,7 @@ class GPIO:
 
             if initialized:
                 print("Done, AHT20 initialized")
-                self.aht20.reset()
+                
             else:
                 print("Warning: AHT20 initialization timed out")
                 self.aht20 = None
