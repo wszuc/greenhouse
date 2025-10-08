@@ -346,7 +346,7 @@ class GPIO:
             }
         try:    
             # Try to read temperature 10 times
-            for i in range(10):
+            for i in range(16):
                 if self.aht20.start_measurement_ready():
                     temperature = self.aht20.get_temperature_C()
                     humidity = self.aht20.get_humidity_RH()
