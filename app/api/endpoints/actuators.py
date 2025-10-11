@@ -1,85 +1,74 @@
-# Set of endpoints for steering actuators
-
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlmodel import Session, select
+from typing import Optional, List
+
 from app.core.gpio import GPIO
-from app.db.models import SystemEvent, SystemEventPublic
+from app.db.models import EventSet, EventPublic
 from app.db.session import engine
 
 router = APIRouter()
 gpio = GPIO()
 
+
 @router.post("/watering-on")
-def turn_on():
+def watering_on() -> dict[str, str]:
     gpio.watering_on()
     return {"status": "Watering is ON"}
 
 @router.post("/watering-off")
-def turn_off():
+def watering_off() -> dict[str, str]:
     gpio.watering_off()
     return {"status": "Watering is OFF"}
 
 @router.post("/heating-on")
-def turn_on():
+def heating_on() -> dict[str, str]:
     gpio.heating_on()
-    return {"status": "Watering is ON"}
+    return {"status": "Heating is ON"}
 
 @router.post("/heating-off")
-def turn_off():
+def heating_off() -> dict[str, str]:
     gpio.heating_off()
-    return {"status": "Watering is OFF"}
+    return {"status": "Heating is OFF"}
 
 @router.post("/led-strip-on")
-def led_strip_on():
+def led_strip_on() -> dict[str, str]:
     gpio.led_strip_on()
     return {"status": "LED strip is ON (white)"}
 
+
 @router.post("/led-strip-off")
-def led_strip_off():
+def led_strip_off() -> dict[str, str]:
     gpio.led_strip_off()
     return {"status": "LED strip is OFF"}
 
 @router.post("/roof-open")
-def roof_open():
+def roof_open() -> dict[str, str]:
     try:
         gpio.roof_open()
-        return {"status": f"Servo set to OPEN"}
+        return {"status": "Roof is OPEN"}
     except Exception as e:
-        return {"error": str(e)}
-    
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/roof-close")
-def roof_close():
+def roof_close() -> dict[str, str]:
     try:
         gpio.roof_close()
-        return {"status": f"Servo set to CLOSE"}
+        return {"status": "Roof is CLOSED"}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/events/", response_model=list[SystemEventPublic])
-def get_system_events(
+
+@router.get("/events/", response_model=List[EventPublic])
+def get_events(
     limit: int = 50,
-    event_type: str = None,
-    severity: str = None,
-    actuator_id: str = None
-):
-    """
-    Get system events with optional filtering.
-    
-    Args:
-        limit: Maximum number of events to return (default: 50)
-        event_type: Filter by event type (e.g., "watering_on", "led_on")
-        severity: Filter by severity level (e.g., "info", "warning", "error")
-        actuator_id: Filter by specific actuator (e.g., "relay_gpio27")
-    """
+    uid: Optional[str] = None
+) -> List[EventPublic]:
     with Session(engine) as session:
-        query = select(SystemEvent).order_by(SystemEvent.id.desc())
-        
-        if event_type:
-            query = query.where(SystemEvent.event_type == event_type)
-        if severity:
-            query = query.where(SystemEvent.severity == severity)
-        if actuator_id:
-            query = query.where(SystemEvent.actuator_id == actuator_id)
-            
+        query = select(EventSet).order_by(EventSet.id.desc())
+
+        if uid:
+            query = query.where(EventSet.uid == uid)
+
         events = session.exec(query.limit(limit)).all()
         return events
