@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from sqlmodel import Session, select
-from app.db.models import ConditionsSet, ConditonsSetPublic, EventSet, EventPublic
+from app.db.models import ConditionsSet, ConditionsSetPublic, EventSet, EventPublic
 from app.db.session import engine
 from datetime import datetime
 
