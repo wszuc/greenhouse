@@ -10,7 +10,6 @@ from adafruit_mcp3xxx.analog_in import AnalogIn
 import smbus2
 import time
 from app.db.utils.event_logger import log_system_event
-from app.db.models import EventType, EventSeverity
 import neopixel
 
 
