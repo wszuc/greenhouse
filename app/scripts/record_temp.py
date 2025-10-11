@@ -1,56 +1,52 @@
-import time
+import requests
 from datetime import datetime
 from sqlmodel import Session
 from app.db.session import engine
 from app.db.models import ConditionsSet
 from app.db.init_db import init_db
-from app.core.gpio import GPIO
 
+API_URL = "http://127.0.0.1:8000/sensors/read/"  
 
 try:
-    print("[INIT] Inicjalizacja bazy danych i GPIO...")
     init_db()
-    gpio = GPIO()
+    response = requests.get(API_URL, timeout=5)
 
-    # Pobierz temperatury z czujników 1-Wire
-    temperatures = gpio.get_temperatures() if hasattr(gpio, "get_temperatures") else {}
-    temp_values = list(temperatures.values()) if temperatures else []
+    if response.status_code != 200:
+        raise Exception(f"Niepoprawny kod odpowiedzi: {response.status_code}")
 
-    temp_1 = temp_values[0] if len(temp_values) > 0 else 0.0
-    temp_2 = temp_values[1] if len(temp_values) > 1 else 0.0
+    data = response.json()
+    if not data or not isinstance(data, list):
+        raise Exception("API response in invalid format")
 
-    # Odczytaj dane z AHT20 (temperatura i wilgotność)
-    ht_data = gpio.get_humidity_and_temperature()
-    temp_3 = ht_data.get("temperature", 0.0) if ht_data else 0.0
-    humidity = ht_data.get("humidity", 0.0) if ht_data else 0.0
+    readings = data[0]
 
-    # Czujniki analogowe
-    soil_humidity = gpio.get_soil_humidity() or 0.0
-    lighting = gpio.get_lighting() or 0.0
+    print("Data received: ")
+    print(f"Temp_1 (ambient): {readings['temp_1']:.2f}°C")
+    print(f"Temp_2 (heater): {readings['temp_2']:.2f}°C")
+    print(f"Temp_3 (AHT): {readings['temp_3']:.2f}°C")
+    print(f"Humidity: {readings['humidity']:.2f}%")
+    print(f"Soil humidity: {readings['soil_humidity']:.2f}V")
+    print(f"Oświetlenie: {readings['lighting']:.2f}V")
 
-    # Logowanie wyników
-    print(f"[LOG] Temp_1: {temp_1:.2f}°C | Temp_2: {temp_2:.2f}°C | Temp_3(AHT): {temp_3:.2f}°C")
-    print(f"[LOG] Wilgotność: {humidity:.2f}% | Gleba: {soil_humidity:.2f}V | Oświetlenie: {lighting:.2f}V")
-
-    # Zapis danych do bazy
     with Session(engine) as session:
         new_entry = ConditionsSet(
             uid="raspberry",
             date=datetime.now().astimezone(),
-            temp_1=temp_1,
-            temp_2=temp_2,
-            temp_3=temp_3,
-            humidity=humidity,
-            soil_humidity=soil_humidity,
-            lighting=lighting,
+            temp_1=readings["temp_1"],
+            temp_2=readings["temp_2"],
+            temp_3=readings["temp_3"],
+            humidity=readings["humidity"],
+            soil_humidity=readings["soil_humidity"],
+            lighting=readings["lighting"],
         )
         session.add(new_entry)
         session.commit()
 
-    print("[SUCCESS] Dane zostały zapisane w bazie danych.\n")
+    print("Data succesfully saved in db\n")
 
-except Exception as e:
-    print(f"[ERROR] Błąd podczas odczytu lub zapisu: {e}")
+except requests.exceptions.ConnectionError:
+    print(f"Cannot connect to server")
     exit(-1)
-
-
+except Exception as e:
+    print(f"Read/write operation failed: {e}")
+    exit(-1)
