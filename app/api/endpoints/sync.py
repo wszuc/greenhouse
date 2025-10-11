@@ -24,7 +24,7 @@ def synchronize_data():
         session.commit()
 
         # Zwróć dane w postaci publicznej
-        conditions_out = [ConditonsSetPublic.from_orm(obj) for obj in unsynced_conditions]
+        conditions_out = [ConditionsSetPublic.from_orm(obj) for obj in unsynced_conditions]
         events_out = [EventPublic.from_orm(obj) for obj in unsynced_events]
 
         return {
