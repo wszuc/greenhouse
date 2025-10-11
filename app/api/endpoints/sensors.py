@@ -4,14 +4,14 @@ import json
 import subprocess
 from fastapi import FastAPI, HTTPException, Query, APIRouter
 from sqlmodel import Field, Session, SQLModel, select
-from app.db.models import ConditionsSet, ConditonsSetPublic
+from app.db.models import ConditionsSet, ConditionsSetPublic
 from app.db.session import engine
 from app.core.gpio import GPIO
 
 router = APIRouter()
 gpio = GPIO()
 
-@router.get("/read/", response_model=list[ConditonsSetPublic])
+@router.get("/read/", response_model=list[ConditionsSetPublic])
 def read_live_conditions():
     # Get sensor readings with fallback to default values
     temperatures = gpio.get_temperatures()
@@ -39,7 +39,7 @@ def read_live_conditions():
     }]
     
 
-@router.get("/from_db/", response_model=list[ConditonsSetPublic])
+@router.get("/from_db/", response_model=list[ConditionsSetPublic])
 def get_values(limit: int = 1):
     with Session(engine) as session:
         values = session.exec(select(ConditionsSet).order_by(ConditionsSet.id.desc()).limit(limit)).all()
