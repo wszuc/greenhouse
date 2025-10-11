@@ -6,7 +6,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.get("/synchronize-data")
+@router.get("/")
 def synchronize_data():
     with Session(engine) as session:
         # Pobierz niesynchronizowane rekordy
