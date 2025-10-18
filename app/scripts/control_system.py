@@ -3,8 +3,8 @@ import aiohttp
 
 BASE_URL = "http://127.0.0.1:8000"  
 TEMP_HYSTERESIS = 1
-TEMP_UPPER_HEATER = 80
-TEMP_BOTTOM_HEATER = 70
+TEMP_UPPER_HEATER = 55
+TEMP_BOTTOM_HEATER = 50
 
 
 async def get_last_desired_climate(session):
