@@ -55,10 +55,10 @@ class EventPublic(EventBase):
 
 # === DESIRED CLIMATE ===
 class DesiredClimateBase(SQLModel):
-    temperature: Optional[float] = None
-    humidity: Optional[float] = None
-    soil_humidity: Optional[int] = None
-    lighting: Optional[int] = None
+    temperature: Optional[float] = Field(default=None, ge=0, le=35)
+    humidity: Optional[float] = Field(default=None, ge=0, le=100)
+    soil_humidity: Optional[int] = Field(default=None, ge=0, le=3)
+    lighting: Optional[int] = Field(default=None, ge=0, le=5)
     date: datetime = Field(default_factory=get_local_datetime)
 
 
