@@ -5,7 +5,7 @@ BASE_URL = "http://127.0.0.1:8000"
 TEMP_HYSTERESIS = 1
 TEMP_UPPER_HEATER = 80
 TEMP_BOTTOM_HEATER = 70
-IS_HEATER_COLLING_DOWN = False
+
 
 async def get_last_desired_climate(session):
     async with session.get(f"{BASE_URL}/climate/get-climate") as response:
@@ -31,6 +31,7 @@ async def roof_close(session):
 
 async def regulate_temperature():
     async with aiohttp.ClientSession() as session:
+        IS_HEATER_COLLING_DOWN = False
         while True:
             try:
                 greenhouse_parameters_current = await get_current_temperature(session)
