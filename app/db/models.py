@@ -52,3 +52,25 @@ class EventCreate(EventBase):
 class EventPublic(EventBase):
     id: int
     uid: str
+
+# === DESIRED CLIMATE ===
+class DesiredClimateBase(SQLModel):
+    temperature: Optional[float] = None
+    humidity: Optional[float] = None
+    soil_humidity: Optional[float] = None
+    lighting: Optional[float] = None
+    date: datetime = Field(default_factory=get_local_datetime)
+
+
+class DesiredClimate(DesiredClimateBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    uid: str 
+
+
+class DesiredClimateCreate(DesiredClimateBase):
+    uid: str
+
+
+class DesiredClimatePublic(DesiredClimateBase):
+    id: int
+    uid: str
