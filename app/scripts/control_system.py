@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 
-BASE_URL = "http://127.0.0.1:8000"  
+BASE_URL = "http://127.0.0.1:8000"
 TEMP_HYSTERESIS = 1
 TEMP_UPPER_HEATER = 65
 TEMP_BOTTOM_HEATER = 60
@@ -10,71 +10,105 @@ TEMP_BOTTOM_HEATER = 60
 async def get_last_desired_climate(session):
     async with session.get(f"{BASE_URL}/climate/get-climate") as response:
         data = await response.json()
-        return data["temperature"]  
+        return {
+            "temperature": data["temperature"],
+            "lighting": data["lighting"]
+        }
 
-async def get_current_temperature(session):
+
+async def get_current_sensors(session):
     async with session.get(f"{BASE_URL}/sensors/read/") as response:
         data = await response.json()
         return data[0]
 
-async def heating_on(session):
-    await session.post(f"{BASE_URL}/actuators/heating-on")
 
-async def heating_off(session):
-    await session.post(f"{BASE_URL}/actuators/heating-off")
+async def heating_on(session): await session.post(f"{BASE_URL}/actuators/heating-on")
+async def heating_off(session): await session.post(f"{BASE_URL}/actuators/heating-off")
+async def roof_open(session): await session.post(f"{BASE_URL}/actuators/roof-open")
+async def roof_close(session): await session.post(f"{BASE_URL}/actuators/roof-close")
+async def led_set_level(session, brightness: int): await session.post(f"{BASE_URL}/actuators/led-strip-on", json={"brightness": brightness})
+async def led_off(session): await session.post(f"{BASE_URL}/actuators/led-strip-off")
 
-async def roof_open(session):
-    await session.post(f"{BASE_URL}/actuators/roof-open")
 
-async def roof_close(session):
-    await session.post(f"{BASE_URL}/actuators/roof-close")
+async def regulate_temperature(session):
+    IS_HEATER_COLLING_DOWN = False
 
-async def regulate_temperature():
+    while True:
+        try:
+            sensors = await get_current_sensors(session)
+            current_temp = sensors["temp_2"]
+            heater_temp = sensors["temp_3"]
+
+            desired = await get_last_desired_climate(session)
+            desired_temp = desired["temperature"]
+
+            if any(v is None for v in [current_temp, heater_temp, desired_temp]):
+                raise Exception("Missing temperature data")
+
+            print(f"[TEMP] Aktualna: {current_temp}°C | Zadana: {desired_temp}°C | Grzałki: {heater_temp}")
+
+            if current_temp < desired_temp - TEMP_HYSTERESIS:
+                await roof_close(session)
+                if heater_temp < TEMP_UPPER_HEATER and not IS_HEATER_COLLING_DOWN:
+                    await heating_on(session)
+                    print("[HEATING] Włączona")
+                elif heater_temp >= TEMP_UPPER_HEATER:
+                    IS_HEATER_COLLING_DOWN = True
+                    await heating_off(session)
+                    print("[HEATING] Grzałka chłodzona")
+                elif IS_HEATER_COLLING_DOWN and heater_temp < TEMP_BOTTOM_HEATER:
+                    IS_HEATER_COLLING_DOWN = False
+                    await heating_on(session)
+                    print("[HEATING] Schłodzona – ponowne włączenie")
+
+            elif current_temp > desired_temp + TEMP_HYSTERESIS:
+                await heating_off(session)
+                await roof_open(session)
+                print("[HEATING] Za ciepło – wyłączona, dach otwarty")
+
+            else:
+                await heating_off(session)
+                await roof_close(session)
+                print("[HEATING] W normie")
+
+            await asyncio.sleep(1)
+
+        except Exception as e:
+            print(f"[ERROR] {e}")
+            await asyncio.sleep(5)
+
+
+async def regulate_lighting(session):
+    while True:
+        try:
+            sensors = await get_current_sensors(session)
+            current_light = sensors["lighting"]
+
+            desired = await get_last_desired_climate(session)
+            desired_light = desired["lighting"]
+
+            print(f"[LIGHT] Aktualne: {current_light}, Zadane: {desired_light}")
+
+            if current_light < desired_light:
+                await led_set_level(session, desired_light)
+                print(f"[LIGHT] Za ciemno – ustawiam LED poziom {desired_light}")
+            else:
+                await led_off(session)
+                print("[LIGHT] Wystarczające światło – wyłączam LED")
+
+            await asyncio.sleep(0.5)
+
+        except Exception as e:
+            print(f"[LIGHT ERROR] {e}")
+            await asyncio.sleep(5)
+
+
+async def main():
     async with aiohttp.ClientSession() as session:
-        IS_HEATER_COLLING_DOWN = False
-        while True:
-            try:
-                greenhouse_parameters_current = await get_current_temperature(session)
-                current_temp = greenhouse_parameters_current["temp_2"]
-                heater_temp = greenhouse_parameters_current["temp_3"]
-                desired_temp = await get_last_desired_climate(session)
-
-                if current_temp == 0.0 or heater_temp == 0.0 or desired_temp == 0.0:
-                    raise Exception(f"Invalid sensor reading - check wiring, current temp: {current_temp}, heater: {heater_temp}, desired: {desired_temp}")
-
-                print(f"Aktualna: {current_temp}°C, Zadana: {desired_temp}°C, Grzałki: {heater_temp}")
-
-                if current_temp < desired_temp - TEMP_HYSTERESIS:
-                    # ogrzewamy
-                    print("Dach zamknięty")
-                    await roof_close(session)
-                    # ogrzewanie po schłodzeniu albo początkowe
-                    if heater_temp < TEMP_UPPER_HEATER and not IS_HEATER_COLLING_DOWN:
-                        print("Grzałka włączona")
-                        await heating_on(session)
-                    # grzałka osiągnęła górną granicę: cooldown
-                    elif heater_temp >= TEMP_UPPER_HEATER:
-                        IS_HEATER_COLLING_DOWN = True
-                        await heating_off(session)
-                        print("Grzałka stygnie")
-                    elif IS_HEATER_COLLING_DOWN and heater_temp < TEMP_BOTTOM_HEATER:
-                        IS_HEATER_COLLING_DOWN = False
-                        await heating_on(session)
-                        print("Grzałka wystarczająco schłodzona, włączam")
-
-                elif current_temp > desired_temp + TEMP_HYSTERESIS:
-                    print("Za ciepło – wyłączenie grzałki, otwieranie dachu")
-                    await heating_off(session)
-                    await roof_open(session)
-                else:
-                    print("Temperatura w normie – zamykanie dachu, wyłączanie grzałki")
-                    await roof_close(session)
-                    await heating_off(session)
-
-                await asyncio.sleep(0.5)  # przerwa między iteracjami
-            except Exception as e:
-                print(f"Błąd regulatora: {e}")
-                await asyncio.sleep(5)
+        await asyncio.gather(
+            regulate_temperature(session),
+            regulate_lighting(session)
+        )
 
 if __name__ == "__main__":
-    asyncio.run(regulate_temperature())
+    asyncio.run(main())
