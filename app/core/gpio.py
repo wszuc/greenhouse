@@ -142,7 +142,7 @@ class GPIO:
             print("Warning: LED strip not available")
             return None
         try:
-            self.led_strip.fill((200,200,200))  # biały
+            self.led_strip.fill((255,255,255))  # biały
             # Log the event
             log_system_event(
                 info="LED STRIP ON"
