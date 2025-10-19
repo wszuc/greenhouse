@@ -39,6 +39,9 @@ async def regulate_temperature():
                 heater_temp = greenhouse_parameters_current["temp_3"]
                 desired_temp = await get_last_desired_climate(session)
 
+                if current_temp == 0.0 or heater_temp == 0.0 or desired_temp == 0.0:
+                    raise Exception(f"Invalid sensor reading - check wiring, current temp: {current_temp}, heater: {heater_temp}, desired: {desired_temp}")
+
                 print(f"Aktualna: {current_temp}°C, Zadana: {desired_temp}°C, Grzałki: {heater_temp}")
 
                 if current_temp < desired_temp - TEMP_HYSTERESIS:
