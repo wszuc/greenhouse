@@ -1,3 +1,4 @@
+from math import floor
 from os import system
 from gpiozero import LED, Servo
 from typing import Optional, Dict
@@ -147,11 +148,11 @@ class GPIO:
             if brightness == 0:
                 self.led_strip_off()
                 return 0
-            brightness_val = brightness/5
+            brightness_val = floor(brightness/5*255)
             self.led_strip.fill((brightness_val, brightness_val, brightness_val))
 
             log_system_event(
-                info="LED STRIP ON"
+                info=f"LED STRIP ON, LEVEL {brightness_val}"
             )
             return 0
         except RuntimeError as error:
