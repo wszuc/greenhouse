@@ -148,7 +148,7 @@ class GPIO:
                 self.led_strip_off()
                 return 0
             brightness_val = brightness/5
-            self.led_strip.fill(brightness_val, brightness_val, brightness_val)
+            self.led_strip.fill((brightness_val, brightness_val, brightness_val))
 
             log_system_event(
                 info="LED STRIP ON"
