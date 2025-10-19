@@ -3,8 +3,8 @@ import aiohttp
 
 BASE_URL = "http://127.0.0.1:8000"  
 TEMP_HYSTERESIS = 1
-TEMP_UPPER_HEATER = 55
-TEMP_BOTTOM_HEATER = 50
+TEMP_UPPER_HEATER = 65
+TEMP_BOTTOM_HEATER = 60
 
 
 async def get_last_desired_climate(session):
@@ -46,18 +46,21 @@ async def regulate_temperature():
 
                 if current_temp < desired_temp - TEMP_HYSTERESIS:
                     # ogrzewamy
-                    print("Za zimno – włączanie grzałki, zamknięcie dachu")
+                    print("Dach zamknięty")
                     await roof_close(session)
                     # ogrzewanie po schłodzeniu albo początkowe
                     if heater_temp < TEMP_UPPER_HEATER and not IS_HEATER_COLLING_DOWN:
+                        print("Grzałka włączona")
                         await heating_on(session)
                     # grzałka osiągnęła górną granicę: cooldown
                     elif heater_temp >= TEMP_UPPER_HEATER:
                         IS_HEATER_COLLING_DOWN = True
                         await heating_off(session)
+                        print("Grzałka stygnie")
                     elif IS_HEATER_COLLING_DOWN and heater_temp < TEMP_BOTTOM_HEATER:
                         IS_HEATER_COLLING_DOWN = False
                         await heating_on(session)
+                        print("Grzałka wystarczająco schłodzona, włączam")
 
                 elif current_temp > desired_temp + TEMP_HYSTERESIS:
                     print("Za ciepło – wyłączenie grzałki, otwieranie dachu")
@@ -68,7 +71,7 @@ async def regulate_temperature():
                     await roof_close(session)
                     await heating_off(session)
 
-                await asyncio.sleep(1)  # krótka przerwa przed kolejnym odczytem
+                await asyncio.sleep(0.5)  # przerwa między iteracjami
             except Exception as e:
                 print(f"Błąd regulatora: {e}")
                 await asyncio.sleep(5)
