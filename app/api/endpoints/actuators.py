@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 from typing import Optional, List
 
@@ -9,6 +10,8 @@ from app.db.session import engine
 router = APIRouter()
 gpio = GPIO()
 
+class BrightnessRequest(BaseModel):
+    brightness: int = Field(..., ge=0, le=5, description="LED Brightness Level (0–5)")
 
 @router.post("/watering-on")
 def watering_on() -> dict[str, str]:
@@ -31,9 +34,9 @@ def heating_off() -> dict[str, str]:
     return {"status": "Heating is OFF"}
 
 @router.post("/led-strip-on")
-def led_strip_on() -> dict[str, str]:
-    gpio.led_strip_on()
-    return {"status": "LED strip is ON (white)"}
+def led_strip_on(req: BrightnessRequest) -> dict[str, str]:
+    gpio.led_strip_on(req.brightness)
+    return {"status": f"LED strip is ON, level: {req.brightness}"}
 
 
 @router.post("/led-strip-off")

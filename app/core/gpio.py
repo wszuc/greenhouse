@@ -1,6 +1,7 @@
 from os import system
 from gpiozero import LED, Servo
 from typing import Optional, Dict
+
 import w1thermsensor
 import busio
 import digitalio
@@ -13,6 +14,7 @@ from app.db.utils.event_logger import log_system_event
 import neopixel
 
 
+    
 class GPIO:
     _instance = None
 
@@ -74,9 +76,9 @@ class GPIO:
         except Exception as e:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
             self.aht20 = None
+        try:
 
         # Initialize SPI and MCP3008
-        try:
             self.spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
             self.cs = digitalio.DigitalInOut(board.D25)
             self.mcp = MCP.MCP3008(self.spi, self.cs)
@@ -137,13 +139,17 @@ class GPIO:
             )
             print(f"Error while moving servo: {e}")
 
-    def led_strip_on(self) -> Optional[int]:
+    def led_strip_on(self, brightness) -> Optional[int]:
         if self.led_strip is None:
             print("Warning: LED strip not available")
             return None
         try:
-            self.led_strip.fill((255,255,255))  # biały
-            # Log the event
+            if brightness == 0:
+                self.led_strip_off()
+                return 0
+            brightness_val = brightness/5
+            self.led_strip.fill(brightness_val, brightness_val, brightness_val)
+
             log_system_event(
                 info="LED STRIP ON"
             )
