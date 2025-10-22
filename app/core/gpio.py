@@ -37,6 +37,14 @@ class GPIO:
             print(f"Warning: LED initialization failed: {e}")
             self.led = None
         
+        # initialize atomiser
+        try:
+            self.atomiser = LED(13)
+            print("Atomiser initialized successfully")
+        except Exception as e:
+            print(f"Warning: Atomiser initialization failed: {e}")
+            self.atomiser = None
+
          # initialize 1st relay (water pump)
         try:
             self.relay_1 = LED(19)
@@ -216,6 +224,40 @@ class GPIO:
             )
             return None
         
+    def atomiser_on(self) -> Optional[int]:
+        if self.atomiser is None:
+            print("Warning: Atomiser not available")
+            return None
+        try:
+            self.atomiser.on()
+            log_system_event(
+                info="ATOMISER ON"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Error during operation atomiser.on(): ", error)
+            log_system_event(
+                info="[ERROR] ATOMISER ON"
+            )
+            return None
+        
+    def atomiser_off(self) -> Optional[int]:
+        if self.atomiser is None:
+            print("Warning: Atomiser not available")
+            return None
+        try:
+            self.atomiser.off()
+            log_system_event(
+                info="ATOMISER OFF"
+            )
+            return 0
+        except RuntimeError as error:
+            print("Error during operation atomiser.off(): ", error)
+            log_system_event(
+                info="[ERROR] ATOMISER OFF"
+            )
+            return None
+            
     def heating_off(self) -> Optional[int]:
         if self.relay_2 is None:
             print("Warning: Relay not available")

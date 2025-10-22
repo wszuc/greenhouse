@@ -51,6 +51,16 @@ def roof_open() -> dict[str, str]:
         return {"status": "Roof is OPEN"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/atomiser-on")
+def atomiser_on() -> dict[str, str]:
+    gpio.atomiser_on()
+    return {"status": "Atomiser is ON"}
+
+@router.post("/atomiser-off")
+def atomiser_off() -> dict[str, str]:
+    gpio.atomiser_of()
+    return {"status": "Atomiser is OFF"}
 
 
 @router.post("/roof-close")
