@@ -59,7 +59,7 @@ def atomiser_on() -> dict[str, str]:
 
 @router.post("/atomiser-off")
 def atomiser_off() -> dict[str, str]:
-    gpio.atomiser_of()
+    gpio.atomiser_off()
     return {"status": "Atomiser is OFF"}
 
 
