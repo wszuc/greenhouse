@@ -306,6 +306,8 @@ class GPIO:
             log_system_event(
                 info="WATERING ON"
             )
+            time.sleep(2)
+            self.watering_off()
             return 0
         except RuntimeError as error:
             print("Relay 1 couldn't be turned off: ", error)
