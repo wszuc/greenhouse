@@ -357,20 +357,13 @@ class GPIO:
                 "humidity": 0.0      # Default humidity in %
             }
         try:    
-
-          
             status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
-            if not (status & 0x08):
-                print("Sensor aht20 not calibrated, sending calibration command...")
-                self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xBE, [0x08, 0x00])
-                time.sleep(0.1)
             self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
             time.sleep(0.1)  # czas konwersji ~80ms
 
             data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
 
             raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
-            print("Raw humidity: ", raw_humidity)
             raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
 
             humidity = (raw_humidity / 1048576.0) * 100.0
