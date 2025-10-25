@@ -97,7 +97,7 @@ async def regulate_lighting(session):
                 await led_off(session)
                 print("[LIGHT] Wystarczające światło – wyłączam LED")
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(60)
 
         except Exception as e:
             print(f"[LIGHT ERROR] {e}")
