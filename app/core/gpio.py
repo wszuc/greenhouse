@@ -78,8 +78,8 @@ class GPIO:
 
         # Initialize AHT20 
         try:
-            self.I2C_ADDR = 0x38
-            self.aht20 = adafruit_ahtx0.AHTx0(self.I2C_ADDR)
+            self.i2c = board.I2C()
+            self.aht20 = adafruit_ahtx0.AHTx0(self.i2c)
 
         except Exception as e:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
