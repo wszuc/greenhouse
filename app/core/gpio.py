@@ -357,7 +357,14 @@ class GPIO:
                 "humidity": 0.0      # Default humidity in %
             }
         try:    
+
+            self.aht20.write_byte(self.I2C_ADDR, 0xBA)
+            time.sleep(0.02)
             status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
+            if not (status & 0x08):
+                print("Sensor aht20 not calibrated, sending calibration command...")
+                self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xBE, [0x08, 0x00])
+                time.sleep(0.1)
             self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
             time.sleep(0.1)  # czas konwersji ~80ms
 
