@@ -358,8 +358,7 @@ class GPIO:
             }
         try:    
 
-            self.aht20.write_byte(self.I2C_ADDR, 0xBA)
-            time.sleep(0.02)
+          
             status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
             if not (status & 0x08):
                 print("Sensor aht20 not calibrated, sending calibration command...")
