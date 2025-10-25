@@ -350,6 +350,7 @@ class GPIO:
         return readings
 
     def get_humidity_and_temperature(self) -> Optional[Dict[str, float]]: 
+        time.sleep(1)
         if self.aht20 is None:
             print("Warning: AHT20 sensor not available, returning default values")
             return {
