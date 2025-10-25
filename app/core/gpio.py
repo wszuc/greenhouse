@@ -352,43 +352,34 @@ class GPIO:
     def get_humidity_and_temperature(self) -> Optional[Dict[str, float]]: 
         if self.aht20 is None:
             print("Warning: AHT20 sensor not available, returning default values")
-            return {"temperature": 0.0, "humidity": 0.0}
-
-        try:
-            # Wyślij polecenie pomiaru
+            return {
+                "temperature": 0.0,  # Default temperature in Celsius
+                "humidity": 0.0      # Default humidity in %
+            }
+        try:    
+            status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
             self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
-            time.sleep(0.1)  # Czas pomiaru (typowo 80ms)
+            time.sleep(0.1)  # czas konwersji ~80ms
 
-            # Sprawdź flagę gotowości (bit 7 = 1 -> busy)
-            status = self.aht20.read_byte_data(self.I2C_ADDR, 0x00)
-            if status & 0x80:
-                print("AHT20 still busy, try again later")
-                return {"temperature": 0.0, "humidity": 0.0}
-
-            # Odczytaj 6 bajtów danych
             data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
 
-            # Połącz bity wilgotności (20 bitów)
             raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
-
-            # Połącz bity temperatury (20 bitów)
             raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
 
-            # Przelicz na jednostki fizyczne
             humidity = (raw_humidity / 1048576.0) * 100.0
-            temperature = (raw_temperature / 1048576.0) * 200.0 - 50.0
-
-            # Korekcja błędów pomiarowych (AHT20 czasem przekracza 100%)
-            humidity = min(max(humidity, 0.0), 100.0)
+            temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
 
             return {
-                "temperature": round(temperature, 2),
-                "humidity": round(humidity, 2)
+                "temperature": temperature,
+                "humidity": humidity
             }
-
-        except Exception as e:
-            print(f"Error reading from AHT20 sensor: {e}")
-            return {"temperature": 0.0, "humidity": 0.0}
+            
+        except RuntimeError as e:
+            print(f"Error reading from AHT20 sensor: {e}, returning default values")
+            return {
+                "temperature": 0.0,  # Default temperature in Celsius
+                "humidity": 0.0      # Default humidity in %
+            } 
 
     def get_soil_humidity(self) -> Optional[float]: 
         if self.mcp is None:
