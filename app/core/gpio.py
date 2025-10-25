@@ -2,13 +2,14 @@ from math import floor
 from os import system
 from gpiozero import LED, Servo
 from typing import Optional, Dict
+
 import w1thermsensor
 import busio
 import digitalio
 import board
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
-import adafruit_ahtx0
+import smbus2
 import time
 from app.db.utils.event_logger import log_system_event
 import neopixel
@@ -78,8 +79,8 @@ class GPIO:
 
         # Initialize AHT20 
         try:
-            self.i2c = board.I2C()
-            self.aht20 = adafruit_ahtx0.AHTx0(self.i2c)
+            self.I2C_ADDR = 0x38
+            self.aht20 = smbus2.SMBus(1)
 
         except Exception as e:
             print(f"Warning: AHT20 sensor initialization failed: {e}")
@@ -356,21 +357,21 @@ class GPIO:
                 "humidity": 0.0      # Default humidity in %
             }
         try:    
-            # status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
-            # self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
-            # time.sleep(0.1)  # czas konwersji ~80ms
+            status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
+            self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
+            time.sleep(0.1)  # czas konwersji ~80ms
 
-            # data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
+            data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
 
-            # raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
-            # raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
+            raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
+            raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
 
-            # humidity = (raw_humidity / 1048576.0) * 100.0
-            # temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
+            humidity = (raw_humidity / 1048576.0) * 100.0
+            temperature = ((raw_temperature / 1048576.0) * 200.0) - 50.0
 
             return {
-                "temperature": self.aht20.temperature,
-                "humidity": self.aht20.relative_humidity
+                "temperature": temperature,
+                "humidity": humidity
             }
             
         except RuntimeError as e:
