@@ -359,7 +359,7 @@ class GPIO:
         try:    
             status = self.aht20.read_byte_data(self.I2C_ADDR, 0x71)
             self.aht20.write_i2c_block_data(self.I2C_ADDR, 0xAC, [0x33, 0x00])
-            time.sleep(0.1)  # czas konwersji ~80ms
+            time.sleep(0.3)  # czas konwersji ~80ms
 
             data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
             print("Raw I2C data:", [hex(x) for x in data])  # 🧾 surowe bajty z sensora
