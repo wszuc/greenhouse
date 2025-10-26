@@ -134,7 +134,7 @@ async def regulate_soil_moisture(session):
     while True:
         try:
             sensors = await get_current_sensors(session)
-            current_soil_moisture_raw = sensors["soil_moisture"]
+            current_soil_moisture_raw = sensors["soil_humidity"]
             if current_soil_moisture_raw > 1.5:
                 current_soil_moisture = 3
             elif current_soil_moisture_raw <= 1.5:
@@ -143,7 +143,7 @@ async def regulate_soil_moisture(session):
                 current_soil_moisture = 1
 
             desired = await get_last_desired_climate(session)
-            desired_soil = desired["soil_moisture"]
+            desired_soil = desired["soil_humidity"]
 
             if any(v is None for v in [current_soil_moisture, desired_soil]):
                 raise Exception("Missing soil moisture data")
