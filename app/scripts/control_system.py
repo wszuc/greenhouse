@@ -44,7 +44,8 @@ async def regulate_temperature(session):
             desired = await get_last_desired_climate(session)
             desired_temp = desired["temperature"]
 
-            if any(v is None for v in [current_temp, heater_temp, desired_temp]):
+            if any(v is None for v in [current_temp, heater_temp, desired_temp]) or heater_temp<20:
+                await heating_off(session)
                 raise Exception("Missing temperature data")
 
             print(f"[TEMP] Aktualna: {current_temp}°C | Zadana: {desired_temp}°C | Grzałki: {heater_temp}")
