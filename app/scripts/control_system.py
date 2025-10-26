@@ -134,7 +134,13 @@ async def regulate_soil_moisture(session):
     while True:
         try:
             sensors = await get_current_sensors(session)
-            current_soil_moisture = sensors["soil_moisture"]
+            current_soil_moisture_raw = sensors["soil_moisture"]
+            if current_soil_moisture_raw > 1.5:
+                current_soil_moisture = 3
+            elif current_soil_moisture_raw <= 1.5:
+                current_soil_moisture = 2
+            elif current_soil_moisture < 1.2:
+                current_soil_moisture = 1
 
             desired = await get_last_desired_climate(session)
             desired_soil = desired["soil_moisture"]
@@ -142,14 +148,14 @@ async def regulate_soil_moisture(session):
             if any(v is None for v in [current_soil_moisture, desired_soil]):
                 raise Exception("Missing soil moisture data")
 
-            print(f"[SOIL] Aktualna: {current_soil_moisture}% | Zadana: {desired_soil}%")
+            print(f"[SOIL] Aktualna: {current_soil_moisture} | Zadana: {desired_soil}")
 
             if current_soil_moisture < desired_soil:
                 await watering_on(session)
                 print("[SOIL] Za sucho – włączam podlewanie na 2s")
             elif current_soil_moisture > desired_soil:
                 await watering_off(session)
-                print("[SOIL] Wystarczająco wilgotno – wyłączam podlewanie")
+                print("[SOIL] Wystarczająco wilgotno - nie załączam podlewania")
 
             await asyncio.sleep(30)
 
@@ -163,7 +169,7 @@ async def main():
             regulate_temperature(session),
             regulate_lighting(session),
             #regulate_air_humidity(session),
-            #regulate_soil_moisture(session)
+            regulate_soil_moisture(session)
         )
 
 if __name__ == "__main__":

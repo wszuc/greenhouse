@@ -362,7 +362,6 @@ class GPIO:
             time.sleep(0.3)  # czas konwersji ~80ms
 
             data = self.aht20.read_i2c_block_data(self.I2C_ADDR, 0x00, 6)
-            print("Raw I2C data:", [hex(x) for x in data])  # 🧾 surowe bajty z sensora
 
             raw_humidity = ((data[1] << 12) | (data[2] << 4) | (data[3] >> 4))
             raw_temperature = (((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5])
